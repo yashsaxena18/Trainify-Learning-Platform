@@ -537,7 +537,6 @@ const Home = () => {
     hoursWatched: 0,
   });
   const [loading, setLoading] = useState(true);
-  const [newsletterEmail, setNewsletterEmail] = useState("");
   const { scrollYProgress } = useScroll();
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
 
@@ -572,22 +571,6 @@ const Home = () => {
       console.error("Failed to fetch home data:", error);
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleNewsletterSignup = async (e) => {
-    e.preventDefault();
-    if (!newsletterEmail) {
-      toast.error("Please enter your email");
-      return;
-    }
-
-    try {
-      await API.post("/newsletter/subscribe", { email: newsletterEmail });
-      toast.success("Successfully subscribed to newsletter!");
-      setNewsletterEmail("");
-    } catch (error) {
-      toast.error("Failed to subscribe. Please try again.");
     }
   };
 
@@ -750,7 +733,7 @@ const Home = () => {
                   transition={{ duration: 0.6, delay: 0.8 }}
                 >
                   <motion.div
-                    className="w-24 h-24 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full mx-auto flex items-center justify-center text-4xl shadow-2xl mb-4"
+                    className="w-20 h-20 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full mx-auto flex items-center justify-center text-4xl shadow-2xl mb-4"
                     animate={{
                       rotate: [0, 5, -5, 0],
                       scale: [1, 1.05, 1],
@@ -871,7 +854,7 @@ const Home = () => {
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-green-400">✓</span>
-                    <span>Industry Projects</span>
+                    <span>Industry Level Projects</span>
                   </div>
                   <div className="flex items-center gap-2">
                     <span className="text-green-400">✓</span>
@@ -939,7 +922,7 @@ const Home = () => {
           </motion.div>
 
           {loading ? (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {[...Array(6)].map((_, i) => (
                 <motion.div
                   key={i}
@@ -960,7 +943,7 @@ const Home = () => {
               ))}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-3 gap-8">
               {featuredCourses.map((course, index) => (
                 <motion.div
                   key={course._id}

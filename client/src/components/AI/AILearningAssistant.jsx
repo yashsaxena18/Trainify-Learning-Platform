@@ -19,12 +19,12 @@ const AILearningAssistant = ({ userId }) => {
         {/* AI Header */}
         <div className="text-center mb-8 md:mb-12">
           <div className="inline-flex items-center justify-center w-16 h-16 md:w-20 md:h-20 bg-gradient-to-r from-blue-600 to-purple-600 rounded-3xl mb-6 shadow-lg transform hover:scale-105 transition-transform duration-300">
-            <span className="text-2xl md:text-3xl">🎓</span>
+            <span className="text-xl md:text-3xl">🎓</span>
           </div>
-          <h2 className="text-3xl md:text-5xl font-bold text-gray-800 mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
+          <h2 className="text-xl md:text-3xl font-bold text-gray-800 mb-3 bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
             AI Learning Assistant
           </h2>
-          <p className="text-lg md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+          <p className="text-md md:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
             Your personal AI tutor for coding and learning
           </p>
         </div>

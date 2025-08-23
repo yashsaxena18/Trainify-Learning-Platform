@@ -40,9 +40,6 @@ const DoubtSolver = ({ userId }) => {
       <div className="space-y-6">
         {/* Code Input */}
         <div>
-          <label className="block text-sm font-medium text-gray-200 mb-2">
-            Your Code
-          </label>
           <textarea
             value={code}
             onChange={(e) => setCode(e.target.value)}

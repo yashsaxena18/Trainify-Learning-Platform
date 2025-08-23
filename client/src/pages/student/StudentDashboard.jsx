@@ -190,6 +190,7 @@ const StudentDashboard = () => {
         const response = await API.get(`/certificate/check/${courseId}`);
         return { courseId, status: response.data };
       } catch (error) {
+        console.log(error);
         const courseId = typeof course === "string" ? course : course._id;
         return { courseId, status: { isCompleted: false } };
       }
@@ -394,7 +395,7 @@ const StudentDashboard = () => {
       {/* AI ASSISTANT FLOATING BUTTON */}
       <motion.button
         onClick={() => setShowAIAssistant(true)}
-        className="fixed bottom-8 right-8 w-16 h-16 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full shadow-2xl flex items-center justify-center text-2xl text-white z-50 hover:shadow-cyan-500/25"
+        className="fixed bottom-8 right-8 w-12 h-12 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full shadow-2xl flex items-center justify-center text-2xl text-white z-50 hover:shadow-cyan-500/25"
         initial={{ scale: 0, rotate: -180 }}
         animate={{ scale: 1, rotate: 0 }}
         transition={{ duration: 0.8, delay: 1 }}
@@ -586,29 +587,28 @@ const StudentDashboard = () => {
               {/* AI ASSISTANT HEADER BUTTON */}
               <motion.button
                 onClick={() => setShowAIAssistant(true)}
-                className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-6 py-3 rounded-2xl font-bold transition-all duration-300 flex items-center gap-2 shadow-lg"
+                className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-4 md:px-6 py-2 md:py-3 rounded-2xl font-bold transition-all duration-300 flex items-center gap-2 shadow-lg text-sm md:text-base"
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.6 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <span className="text-lg">🤖</span>
+                <span className="text-md">🤖</span>
                 AI Assistant
               </motion.button>
-
               <motion.div
-                className="text-right bg-white/10 rounded-2xl p-6 backdrop-blur-sm border border-white/20"
+                className="text-center md:text-right bg-white/10 rounded-2xl p-4 md:p-6 backdrop-blur-sm border border-white/20"
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.5 }}
                 whileHover={{ scale: 1.05 }}
               >
                 <div className="text-sm text-blue-100">Total Progress</div>
-                <div className="text-4xl font-black text-white">
+                <div className="text-3xl md:text-4xl font-black text-white">
                   {dashboardStats.totalProgress}%
                 </div>
-                <div className="text-xs text-cyan-200">
+                <div className="text-xs pt-3 text-cyan-200">
                   {dashboardStats.totalLecturesCompleted} of{" "}
                   {dashboardStats.totalLecturesAcrossAllCourses} lectures
                 </div>
@@ -710,7 +710,7 @@ const StudentDashboard = () => {
               className="space-y-8"
             >
               {/* Modern Stats Cards */}
-              <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
                 <ModernStatCard
                   title="Enrolled Courses"
                   value={enrolledCourses.length}
@@ -839,7 +839,7 @@ const StudentDashboard = () => {
                       </motion.button>
                     </motion.div>
                   ) : (
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
                       {enrolledCourses.slice(0, 4).map((course, index) => (
                         <ModernEnrolledCourseCard
                           key={course._id}
@@ -917,7 +917,7 @@ const StudentDashboard = () => {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-3 md:grid-cols-3 gap-4">
                   {aiFeatures.map((feature, index) => (
                     <motion.button
                       key={feature.id}
