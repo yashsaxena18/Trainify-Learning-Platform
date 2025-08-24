@@ -33,14 +33,30 @@ const allowedOrigins = [process.env.CLIENT_URL, process.env.CLIENT_URL_PROD];
 
 // Middleware
 app.use(cors({
-  origin: function(origin, callback){
+  origin: function(origin, callback) {
     if(!origin) return callback(null, true); // allow Postman, mobile apps
-    if(!allowedOrigins.includes(origin)){
+    if(!allowedOrigins.includes(origin)) {
       return callback(new Error("CORS policy does not allow access from this origin"), false);
     }
     return callback(null, true);
   },
-  credentials: true // allow cookies/auth headers
+  credentials: true, // allow cookies
+  methods: ["GET","POST","PUT","DELETE","OPTIONS"], // allow these HTTP methods
+  allowedHeaders: ["Content-Type","Authorization","Accept"] // allow these headers
+}));
+
+// Handle preflight requests for all routes
+app.options("*", cors({
+  origin: function(origin, callback) {
+    if(!origin) return callback(null, true);
+    if(!allowedOrigins.includes(origin)) {
+      return callback(new Error("CORS policy does not allow access from this origin"), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true,
+  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
+  allowedHeaders: ["Content-Type","Authorization","Accept"]
 }));
 
 // Middleware to parse JSON
