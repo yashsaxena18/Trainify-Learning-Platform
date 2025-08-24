@@ -395,7 +395,7 @@ const StudentDashboard = () => {
       {/* AI ASSISTANT FLOATING BUTTON */}
       <motion.button
         onClick={() => setShowAIAssistant(true)}
-        className="fixed bottom-8 right-8 w-12 h-12 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full shadow-2xl flex items-center justify-center text-2xl text-white z-50 hover:shadow-cyan-500/25"
+        className="fixed bottom-4 right-4 w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-cyan-500 to-blue-600 rounded-full shadow-2xl flex items-center justify-center text-lg sm:text-2xl text-white z-50 hover:shadow-cyan-500/25"
         initial={{ scale: 0, rotate: -180 }}
         animate={{ scale: 1, rotate: 0 }}
         transition={{ duration: 0.8, delay: 1 }}
@@ -435,33 +435,33 @@ const StudentDashboard = () => {
       <AnimatePresence>
         {showAIAssistant && (
           <motion.div
-            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
             onClick={() => setShowAIAssistant(false)}
           >
             <motion.div
-              className="bg-gradient-to-br from-slate-800 via-purple-900 to-indigo-900 rounded-3xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden border border-white/20"
+              className="bg-gradient-to-br from-slate-800 via-purple-900 to-indigo-900 rounded-2xl sm:rounded-3xl shadow-2xl max-w-6xl w-full max-h-[90vh] overflow-hidden border border-white/20"
               initial={{ scale: 0.8, opacity: 0, y: 50 }}
               animate={{ scale: 1, opacity: 1, y: 0 }}
               exit={{ scale: 0.8, opacity: 0, y: 50 }}
               onClick={(e) => e.stopPropagation()}
             >
               {/* AI Modal Header */}
-              <div className="p-6 bg-gradient-to-r from-cyan-600/90 to-blue-600/90 backdrop-blur-xl border-b border-white/10">
+              <div className="p-3 sm:p-6 bg-gradient-to-r from-cyan-600/90 to-blue-600/90 backdrop-blur-xl border-b border-white/10">
                 <div className="flex justify-between items-center">
                   <div>
-                    <h2 className="text-2xl font-bold text-white flex items-center gap-3">
+                    <h2 className="text-lg sm:text-2xl font-bold text-white flex items-center gap-2 sm:gap-3">
                       🤖 AI Learning Assistant
                     </h2>
-                    <p className="text-blue-100 text-sm">
+                    <p className="text-blue-100 text-xs sm:text-sm">
                       Your personal AI tutor for coding and learning
                     </p>
                   </div>
                   <button
                     onClick={() => setShowAIAssistant(false)}
-                    className="w-10 h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors"
+                    className="w-8 h-8 sm:w-10 sm:h-10 bg-white/10 hover:bg-white/20 rounded-full flex items-center justify-center text-white transition-colors text-sm sm:text-base"
                   >
                     ✕
                   </button>
@@ -469,13 +469,13 @@ const StudentDashboard = () => {
               </div>
 
               {/* AI Feature Navigation */}
-              <div className="p-6 border-b border-white/10">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+              <div className="p-3 sm:p-6 border-b border-white/10">
+                <div className="grid grid-cols-2 sm:grid-cols-1 md:grid-cols-3 gap-2 sm:gap-4">
                   {aiFeatures.map((feature, index) => (
                     <motion.button
                       key={feature.id}
                       onClick={() => setActiveAIFeature(feature.id)}
-                      className={`p-4 rounded-2xl border transition-all duration-300 ${
+                      className={`p-2 sm:p-4 rounded-lg sm:rounded-2xl border transition-all duration-300 ${
                         activeAIFeature === feature.id
                           ? `bg-gradient-to-r ${feature.gradient} text-white border-white/30 shadow-lg`
                           : "bg-white/5 text-gray-300 border-white/10 hover:bg-white/10 hover:border-white/20"
@@ -486,9 +486,13 @@ const StudentDashboard = () => {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      <div className="text-2xl mb-2">{feature.icon}</div>
-                      <h3 className="font-bold text-sm mb-1">{feature.name}</h3>
-                      <p className="text-xs opacity-90">
+                      <div className="text-lg sm:text-2xl mb-1 sm:mb-2">
+                        {feature.icon}
+                      </div>
+                      <h3 className="font-bold text-xs sm:text-sm mb-0.5 sm:mb-1">
+                        {feature.name}
+                      </h3>
+                      <p className="text-xs opacity-90 hidden sm:block">
                         {feature.description}
                       </p>
                     </motion.button>
@@ -497,7 +501,7 @@ const StudentDashboard = () => {
               </div>
 
               {/* AI Feature Content */}
-              <div className="p-6 max-h-[60vh] overflow-y-auto">
+              <div className="p-3 sm:p-6 max-h-[60vh] overflow-y-auto">
                 <AnimatePresence mode="wait">
                   {activeAIFeature === "chatbot" && (
                     <motion.div
@@ -546,11 +550,11 @@ const StudentDashboard = () => {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6 }}
       >
-        <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center">
+        <div className="max-w-7xl mx-auto py-4 sm:py-8 px-2 sm:px-4 lg:px-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 sm:gap-0">
             <div>
               <motion.h1
-                className="text-4xl font-black text-white mb-2"
+                className="text-2xl sm:text-4xl font-black text-white mb-1 sm:mb-2"
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.2 }}
@@ -558,7 +562,7 @@ const StudentDashboard = () => {
                 🎓 Learning Dashboard
               </motion.h1>
               <motion.p
-                className="text-blue-100 text-lg"
+                className="text-blue-100 text-sm sm:text-lg"
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.3 }}
@@ -569,7 +573,7 @@ const StudentDashboard = () => {
               </motion.p>
               {completionStats.totalEnrolled > 0 && (
                 <motion.p
-                  className="text-sm text-cyan-200 mt-3 bg-white/10 rounded-full px-4 py-2 inline-block backdrop-blur-sm"
+                  className="text-xs sm:text-sm text-cyan-200 mt-2 sm:mt-3 bg-white/10 rounded-full px-3 py-1 sm:px-4 sm:py-2 inline-block backdrop-blur-sm"
                   initial={{ y: 10, opacity: 0 }}
                   animate={{ y: 0, opacity: 1 }}
                   transition={{ delay: 0.4 }}
@@ -583,32 +587,34 @@ const StudentDashboard = () => {
                 </motion.p>
               )}
             </div>
-            <div className="flex items-center gap-4">
+            <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
               {/* AI ASSISTANT HEADER BUTTON */}
               <motion.button
                 onClick={() => setShowAIAssistant(true)}
-                className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-4 md:px-6 py-2 md:py-3 rounded-2xl font-bold transition-all duration-300 flex items-center gap-2 shadow-lg text-sm md:text-base"
+                className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-3 py-2 sm:px-6 sm:py-3 rounded-xl sm:rounded-2xl font-bold transition-all duration-300 flex items-center gap-1 sm:gap-2 shadow-lg text-xs sm:text-base flex-1 sm:flex-initial justify-center sm:justify-start"
                 initial={{ scale: 0, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.6 }}
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
               >
-                <span className="text-md">🤖</span>
+                <span className="text-sm sm:text-md">🤖</span>
                 AI Assistant
               </motion.button>
               <motion.div
-                className="text-center md:text-right bg-white/10 rounded-2xl p-4 md:p-6 backdrop-blur-sm border border-white/20"
+                className="text-center bg-white/10 rounded-xl sm:rounded-2xl p-3 sm:p-6 backdrop-blur-sm border border-white/20 flex-1 sm:flex-initial"
                 initial={{ scale: 0.8, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ delay: 0.5 }}
                 whileHover={{ scale: 1.05 }}
               >
-                <div className="text-sm text-blue-100">Total Progress</div>
-                <div className="text-3xl md:text-4xl font-black text-white">
+                <div className="text-xs sm:text-sm text-blue-100">
+                  Total Progress
+                </div>
+                <div className="text-2xl sm:text-4xl font-black text-white">
                   {dashboardStats.totalProgress}%
                 </div>
-                <div className="text-xs pt-3 text-cyan-200">
+                <div className="text-xs pt-1 sm:pt-3 text-cyan-200">
                   {dashboardStats.totalLecturesCompleted} of{" "}
                   {dashboardStats.totalLecturesAcrossAllCourses} lectures
                 </div>
@@ -619,9 +625,9 @@ const StudentDashboard = () => {
       </motion.div>
 
       {/* Modern Navigation Tabs */}
-      <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+      <div className="relative z-10 max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
         <motion.div
-          className="flex space-x-1 pt-6 bg-white/5 rounded-b-2xl backdrop-blur-sm"
+          className="flex flex-wrap gap-1 pt-3 sm:pt-6 bg-white/5 rounded-b-2xl backdrop-blur-sm overflow-x-auto"
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.6 }}
@@ -630,40 +636,46 @@ const StudentDashboard = () => {
             {
               id: "overview",
               name: "📊 Overview",
+              shortName: "📊",
               color: "from-blue-500 to-cyan-500",
             },
             {
               id: "courses",
               name: "📚 My Courses",
+              shortName: "📚",
               color: "from-purple-500 to-pink-500",
             },
             {
               id: "browse",
               name: "🔍 Browse",
+              shortName: "🔍",
               color: "from-emerald-500 to-teal-500",
             },
             {
               id: "certificates",
               name: "🏆 Certificates",
+              shortName: "🏆",
               color: "from-yellow-500 to-orange-500",
             },
             {
               id: "progress",
               name: "📈 Progress",
+              shortName: "📈",
               color: "from-indigo-500 to-purple-500",
             },
             {
               id: "ai-assistant",
               name: "🤖 AI Assistant",
+              shortName: "🤖",
               color: "from-cyan-500 to-blue-500",
             },
-          ].map(({ id, name, color }) => (
+          ].map(({ id, name, shortName, color }) => (
             <motion.button
               key={id}
               onClick={() => {
                 setActiveTab(id);
               }}
-              className={`relative px-6 py-4 rounded-t-2xl font-bold text-sm transition-all duration-300 ${
+              className={`relative px-3 py-2 sm:px-6 sm:py-4 rounded-t-lg sm:rounded-t-2xl font-bold text-xs sm:text-sm transition-all duration-300 whitespace-nowrap ${
                 activeTab === id
                   ? `bg-gradient-to-r ${color} text-white shadow-2xl transform scale-105`
                   : "text-gray-300 hover:text-white hover:bg-white/10"
@@ -673,15 +685,16 @@ const StudentDashboard = () => {
             >
               {activeTab === id && (
                 <motion.div
-                  className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent rounded-t-2xl"
+                  className="absolute inset-0 bg-gradient-to-r from-white/20 to-transparent rounded-t-lg sm:rounded-t-2xl"
                   layoutId="activeTab"
                   transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                 />
               )}
-              <span className="relative z-10">{name}</span>
+              <span className="relative z-10 block sm:hidden">{shortName}</span>
+              <span className="relative z-10 hidden sm:block">{name}</span>
               {id === "ai-assistant" && (
                 <motion.div
-                  className="absolute -top-1 -right-1 w-3 h-3 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full"
+                  className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full"
                   animate={{
                     scale: [1, 1.2, 1],
                     opacity: [1, 0.7, 1],
@@ -697,7 +710,7 @@ const StudentDashboard = () => {
         </motion.div>
       </div>
 
-      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8 relative z-10">
+      <div className="max-w-7xl mx-auto py-4 sm:py-8 px-2 sm:px-4 lg:px-8 relative z-10">
         <AnimatePresence mode="wait">
           {/* Overview Tab */}
           {activeTab === "overview" && (
@@ -707,10 +720,10 @@ const StudentDashboard = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5 }}
-              className="space-y-8"
+              className="space-y-4 sm:space-y-8"
             >
               {/* Modern Stats Cards */}
-              <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
+              <div className="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6">
                 <ModernStatCard
                   title="Enrolled Courses"
                   value={enrolledCourses.length}
@@ -751,16 +764,16 @@ const StudentDashboard = () => {
               {/* Learning Overview Card */}
               {completionStats.totalEnrolled > 0 && (
                 <motion.div
-                  className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl p-8 border border-white/20 shadow-2xl"
+                  className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-4 sm:p-8 border border-white/20 shadow-2xl"
                   initial={{ opacity: 0, scale: 0.95 }}
                   animate={{ opacity: 1, scale: 1 }}
                   transition={{ delay: 0.5 }}
                 >
-                  <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                    <span className="text-3xl">📊</span>
+                  <h3 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6 flex items-center gap-2 sm:gap-3">
+                    <span className="text-2xl sm:text-3xl">📊</span>
                     Learning Overview
                   </h3>
-                  <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-3 sm:gap-6">
                     {[
                       {
                         label: "Total Enrolled",
@@ -783,16 +796,18 @@ const StudentDashboard = () => {
                     ].map((stat, index) => (
                       <motion.div
                         key={stat.label}
-                        className={`text-center p-6 rounded-2xl bg-gradient-to-br ${stat.bg} border border-white/10`}
+                        className={`text-center p-4 sm:p-6 rounded-xl sm:rounded-2xl bg-gradient-to-br ${stat.bg} border border-white/10`}
                         initial={{ y: 20, opacity: 0 }}
                         animate={{ y: 0, opacity: 1 }}
                         transition={{ delay: 0.6 + index * 0.1 }}
                         whileHover={{ scale: 1.05, y: -5 }}
                       >
-                        <div className={`text-4xl font-black ${stat.color}`}>
+                        <div
+                          className={`text-2xl sm:text-4xl font-black ${stat.color}`}
+                        >
                           {stat.value}
                         </div>
-                        <div className="text-gray-300 font-medium">
+                        <div className="text-gray-300 font-medium text-sm sm:text-base">
                           {stat.label}
                         </div>
                       </motion.div>
@@ -803,35 +818,37 @@ const StudentDashboard = () => {
 
               {/* Continue Learning Section */}
               <motion.div
-                className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl border border-white/20 shadow-2xl overflow-hidden"
+                className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl sm:rounded-3xl border border-white/20 shadow-2xl overflow-hidden"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.7 }}
               >
-                <div className="px-8 py-6 bg-gradient-to-r from-indigo-600/50 to-purple-600/50 border-b border-white/10">
-                  <h2 className="text-2xl font-bold text-white flex items-center gap-3">
-                    <span className="text-3xl">🚀</span>
+                <div className="px-4 py-3 sm:px-8 sm:py-6 bg-gradient-to-r from-indigo-600/50 to-purple-600/50 border-b border-white/10">
+                  <h2 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2 sm:gap-3">
+                    <span className="text-2xl sm:text-3xl">🚀</span>
                     Continue Learning
                   </h2>
                 </div>
-                <div className="p-8">
+                <div className="p-4 sm:p-8">
                   {enrolledCourses.length === 0 ? (
                     <motion.div
-                      className="text-center py-12"
+                      className="text-center py-8 sm:py-12"
                       initial={{ opacity: 0 }}
                       animate={{ opacity: 1 }}
                       transition={{ delay: 0.8 }}
                     >
-                      <div className="text-8xl mb-6">📚</div>
-                      <h3 className="text-2xl font-bold text-white mb-4">
+                      <div className="text-6xl sm:text-8xl mb-4 sm:mb-6">
+                        📚
+                      </div>
+                      <h3 className="text-xl sm:text-2xl font-bold text-white mb-2 sm:mb-4">
                         No enrolled courses yet
                       </h3>
-                      <p className="text-gray-300 mb-8 text-lg">
+                      <p className="text-gray-300 mb-6 sm:mb-8 text-base sm:text-lg">
                         Start your learning journey by enrolling in a course.
                       </p>
                       <motion.button
                         onClick={() => setActiveTab("browse")}
-                        className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-8 py-4 rounded-full font-bold text-lg shadow-2xl transition-all duration-300"
+                        className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-6 py-3 sm:px-8 sm:py-4 rounded-full font-bold text-base sm:text-lg shadow-2xl transition-all duration-300"
                         whileHover={{ scale: 1.05, y: -2 }}
                         whileTap={{ scale: 0.95 }}
                       >
@@ -839,7 +856,7 @@ const StudentDashboard = () => {
                       </motion.button>
                     </motion.div>
                   ) : (
-                    <div className="grid grid-cols-2 md:grid-cols-2 gap-6">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-6">
                       {enrolledCourses.slice(0, 4).map((course, index) => (
                         <ModernEnrolledCourseCard
                           key={course._id}
@@ -857,6 +874,8 @@ const StudentDashboard = () => {
           )}
 
           {/* AI Assistant Tab */}
+
+          {/* AI Assistant Tab */}
           {activeTab === "ai-assistant" && (
             <motion.div
               key="ai-assistant"
@@ -864,37 +883,39 @@ const StudentDashboard = () => {
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
               transition={{ duration: 0.5 }}
-              className="space-y-8"
+              className="space-y-4 sm:space-y-8"
             >
               {/* AI Assistant Page Header */}
               <motion.div
-                className="bg-gradient-to-br from-slate-800 via-purple-900 to-indigo-900 rounded-3xl p-8 border border-white/20 shadow-2xl"
+                className="bg-gradient-to-br from-slate-800 via-purple-900 to-indigo-900 rounded-2xl sm:rounded-3xl p-4 sm:p-8 border border-white/20 shadow-2xl"
                 initial={{ opacity: 0, scale: 0.95 }}
                 animate={{ opacity: 1, scale: 1 }}
                 transition={{ delay: 0.1 }}
               >
-                <div className="flex items-center justify-between">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
                   <div>
-                    <h2 className="text-4xl font-bold text-white flex items-center gap-4 mb-3">
-                      <span className="text-5xl">🤖</span>
+                    <h2 className="text-2xl sm:text-4xl font-bold text-white flex items-center gap-2 sm:gap-4 mb-2 sm:mb-3">
+                      <span className="text-3xl sm:text-5xl">🤖</span>
                       AI Learning Assistant
                     </h2>
-                    <p className="text-blue-100 text-lg">
+                    <p className="text-blue-100 text-sm sm:text-lg mb-3 sm:mb-0">
                       Your personal AI tutor for coding and learning - Available
                       24/7
                     </p>
-                    <div className="flex items-center gap-4 mt-4">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-2 sm:mt-4">
                       <div className="flex items-center gap-2 text-green-400">
                         <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                        <span className="text-sm">Online & Ready</span>
+                        <span className="text-xs sm:text-sm">
+                          Online & Ready
+                        </span>
                       </div>
-                      <div className="text-cyan-200 text-sm">
+                      <div className="text-cyan-200 text-xs sm:text-sm">
                         🎯 Personalized • 💡 Interactive • 🚀 Instant Help
                       </div>
                     </div>
                   </div>
                   <motion.div
-                    className="text-8xl"
+                    className="text-4xl sm:text-8xl self-center sm:self-auto"
                     animate={{
                       rotate: [0, 10, -10, 0],
                       scale: [1, 1.1, 1],
@@ -912,17 +933,17 @@ const StudentDashboard = () => {
 
               {/* AI Feature Navigation */}
               <motion.div
-                className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl p-6 border border-white/20 shadow-2xl mb-6"
+                className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl sm:rounded-3xl p-3 sm:p-6 border border-white/20 shadow-2xl mb-4 sm:mb-6"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.2 }}
               >
-                <div className="grid grid-cols-3 md:grid-cols-3 gap-4">
+                <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4">
                   {aiFeatures.map((feature, index) => (
                     <motion.button
                       key={feature.id}
                       onClick={() => setActiveAIFeature(feature.id)}
-                      className={`p-6 rounded-2xl border transition-all duration-300 ${
+                      className={`p-3 sm:p-6 rounded-xl sm:rounded-2xl border transition-all duration-300 ${
                         activeAIFeature === feature.id
                           ? `bg-gradient-to-r ${feature.gradient} text-white border-white/30 shadow-lg scale-105`
                           : "bg-white/5 text-gray-300 border-white/10 hover:bg-white/10 hover:border-white/20"
@@ -933,24 +954,27 @@ const StudentDashboard = () => {
                       whileHover={{ scale: 1.02 }}
                       whileTap={{ scale: 0.98 }}
                     >
-                      <div className="text-3xl mb-3">{feature.icon}</div>
-                      <h3 className="font-bold text-lg mb-2">{feature.name}</h3>
-                      <p className="text-sm opacity-90">
+                      <div className="text-2xl sm:text-3xl mb-2 sm:mb-3">
+                        {feature.icon}
+                      </div>
+                      <h3 className="font-bold text-base sm:text-lg mb-1 sm:mb-2">
+                        {feature.name}
+                      </h3>
+                      <p className="text-xs sm:text-sm opacity-90">
                         {feature.description}
                       </p>
                     </motion.button>
                   ))}
                 </div>
               </motion.div>
-
               {/* AI Feature Content Container */}
               <motion.div
-                className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl border border-white/20 shadow-2xl overflow-hidden"
+                className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-2xl sm:rounded-3xl border border-white/20 shadow-2xl overflow-hidden"
                 initial={{ opacity: 0, y: 20 }}
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.4 }}
               >
-                <div className="p-8 min-h-[600px]">
+                <div className="p-4 sm:p-8 min-h-[400px] sm:min-h-[600px]">
                   <AnimatePresence mode="wait">
                     {activeAIFeature === "chatbot" && (
                       <motion.div
@@ -961,12 +985,12 @@ const StudentDashboard = () => {
                         transition={{ duration: 0.3 }}
                         className="h-full"
                       >
-                        <div className="mb-4">
-                          <h3 className="text-2xl font-bold text-white flex items-center gap-3 mb-2">
-                            <span className="text-3xl">🤖</span>
+                        <div className="mb-3 sm:mb-4">
+                          <h3 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
+                            <span className="text-2xl sm:text-3xl">🤖</span>
                             AI Tutor Chat
                           </h3>
-                          <p className="text-gray-300">
+                          <p className="text-gray-300 text-sm sm:text-base">
                             Get instant help with programming concepts and
                             coding questions
                           </p>
@@ -984,12 +1008,12 @@ const StudentDashboard = () => {
                         transition={{ duration: 0.3 }}
                         className="h-full"
                       >
-                        <div className="mb-4">
-                          <h3 className="text-2xl font-bold text-white flex items-center gap-3 mb-2">
-                            <span className="text-3xl">🔍</span>
+                        <div className="mb-3 sm:mb-4">
+                          <h3 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
+                            <span className="text-2xl sm:text-3xl">🔍</span>
                             Code Debugger
                           </h3>
-                          <p className="text-gray-300">
+                          <p className="text-gray-300 text-sm sm:text-base">
                             Debug your code and fix errors with AI assistance
                           </p>
                         </div>
@@ -1006,12 +1030,12 @@ const StudentDashboard = () => {
                         transition={{ duration: 0.3 }}
                         className="h-full"
                       >
-                        <div className="mb-4">
-                          <h3 className="text-2xl font-bold text-white flex items-center gap-3 mb-2">
-                            <span className="text-3xl">📝</span>
+                        <div className="mb-3 sm:mb-4">
+                          <h3 className="text-xl sm:text-2xl font-bold text-white flex items-center gap-2 sm:gap-3 mb-1 sm:mb-2">
+                            <span className="text-2xl sm:text-3xl">📝</span>
                             Smart Quizzes
                           </h3>
-                          <p className="text-gray-300">
+                          <p className="text-gray-300 text-sm sm:text-base">
                             Generate personalized quizzes on any topic you're
                             learning
                           </p>
@@ -1272,7 +1296,7 @@ const StudentDashboard = () => {
 // Modern Stat Card Component
 const ModernStatCard = ({ title, value, icon, gradient, subtitle, delay }) => (
   <motion.div
-    className={`bg-gradient-to-br ${gradient} rounded-3xl p-6 shadow-2xl border border-white/20 backdrop-blur-sm`} // ✅ FIXED: template literal
+    className={`bg-gradient-to-br ${gradient} rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-2xl border border-white/20 backdrop-blur-sm`}
     initial={{ opacity: 0, y: 20, scale: 0.9 }}
     animate={{ opacity: 1, y: 0, scale: 1 }}
     transition={{ duration: 0.6, delay }}
@@ -1282,21 +1306,21 @@ const ModernStatCard = ({ title, value, icon, gradient, subtitle, delay }) => (
       boxShadow: "0 25px 50px rgba(0, 0, 0, 0.3)",
     }}
   >
-    <div className="flex items-center justify-between mb-4">
-      <div className="text-4xl">{icon}</div>
+    <div className="flex items-center justify-between mb-3 sm:mb-4">
+      <div className="text-2xl sm:text-4xl">{icon}</div>
       <motion.div
         className="text-right"
         initial={{ scale: 0 }}
         animate={{ scale: 1 }}
         transition={{ duration: 0.5, delay: delay + 0.2 }}
       >
-        <div className="text-3xl font-black text-white">
+        <div className="text-xl sm:text-3xl font-black text-white">
           {typeof value === "number" ? value.toLocaleString() : value}
         </div>
       </motion.div>
     </div>
-    <div className="text-white/90 font-semibold mb-1">{title}</div>
-    {subtitle && <div className="text-white/70 text-sm">{subtitle}</div>}
+    <div className="text-white/90 font-semibold mb-1 text-sm sm:text-base">{title}</div>
+    {subtitle && <div className="text-white/70 text-xs sm:text-sm">{subtitle}</div>}
   </motion.div>
 );
 
@@ -1311,7 +1335,7 @@ const ModernEnrolledCourseCard = ({
   const navigate = useNavigate();
 
   const handleContinueLearning = () => {
-    navigate(`/course/${course._id}/learn`); // ✅ FIXED: removed escape
+    navigate(`/course/${course._id}/learn`);
   };
 
   const progressPercentage = progress
@@ -1322,51 +1346,51 @@ const ModernEnrolledCourseCard = ({
 
   return (
     <motion.div
-      className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500 backdrop-blur-xl overflow-hidden group"
+      className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-2xl sm:rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500 backdrop-blur-xl overflow-hidden group"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: index * 0.1 }} // ✅ FIXED: multiplication
+      transition={{ duration: 0.6, delay: index * 0.1 }}
       whileHover={{ scale: 1.02, y: -5 }}
     >
-      <div className="p-6">
-        <div className="flex justify-between items-start mb-4">
-          <h3 className="font-bold text-white text-lg line-clamp-2 group-hover:text-cyan-400 transition-colors">
+      <div className="p-4 sm:p-6">
+        <div className="flex justify-between items-start mb-3 sm:mb-4">
+          <h3 className="font-bold text-white text-base sm:text-lg line-clamp-2 group-hover:text-cyan-400 transition-colors pr-2">
             {course.title}
           </h3>
-          <div className="text-2xl">
+          <div className="text-lg sm:text-2xl flex-shrink-0">
             {progressPercentage === 100 ? "🏆" : "📚"}
           </div>
         </div>
 
         {detailed && (
-          <p className="text-gray-300 text-sm mb-4 line-clamp-2">
+          <p className="text-gray-300 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-2">
             {course.description}
           </p>
         )}
 
-        <div className="mb-6">
-          <div className="flex justify-between items-center mb-3">
-            <span className="text-gray-300 font-medium">Progress</span>
-            <span className="text-lg font-bold text-white">
+        <div className="mb-4 sm:mb-6">
+          <div className="flex justify-between items-center mb-2 sm:mb-3">
+            <span className="text-gray-300 font-medium text-sm sm:text-base">Progress</span>
+            <span className="text-base sm:text-lg font-bold text-white">
               {progressPercentage}%
             </span>
           </div>
-          <div className="w-full bg-gray-700 rounded-full h-3 overflow-hidden">
+          <div className="w-full bg-gray-700 rounded-full h-2 sm:h-3 overflow-hidden">
             <motion.div
-              className={`h-3 rounded-full transition-all duration-1000 ${
+              className={`h-2 sm:h-3 rounded-full transition-all duration-1000 ${
                 progressPercentage === 100
                   ? "bg-gradient-to-r from-green-400 to-emerald-500"
                   : "bg-gradient-to-r from-cyan-400 to-blue-500"
               }`}
               initial={{ width: 0 }}
               animate={{ width: `${progressPercentage}%` }}
-              transition={{ duration: 1, delay: index * 0.1 }} // ✅ FIXED: multiplication
+              transition={{ duration: 1, delay: index * 0.1 }}
             />
           </div>
         </div>
 
         {progress && (
-          <div className="text-sm text-gray-400 mb-4">
+          <div className="text-xs sm:text-sm text-gray-400 mb-3 sm:mb-4">
             {progress.completedLectures || 0} of{" "}
             {progress.totalLectures || course.lectures?.length || 0} lectures
             completed
@@ -1375,7 +1399,7 @@ const ModernEnrolledCourseCard = ({
 
         <motion.button
           onClick={handleContinueLearning}
-          className={`w-full px-6 py-3 rounded-2xl font-bold transition-all duration-300 flex items-center justify-center gap-3 ${
+          className={`w-full px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3 text-sm sm:text-base ${
             progressPercentage === 100
               ? "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white"
               : "bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white"
@@ -1401,32 +1425,32 @@ const ModernAvailableCourseCard = ({ course, onEnroll, index }) => {
 
   const handleEnroll = async () => {
     setEnrolling(true);
-    await onEnroll(course); // ✅ FIXED: pass entire course object
+    await onEnroll(course);
     setEnrolling(false);
   };
 
   return (
     <motion.div
-      className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500 backdrop-blur-xl overflow-hidden group"
+      className="bg-gradient-to-br from-white/10 to-white/5 border border-white/20 rounded-2xl sm:rounded-3xl shadow-2xl hover:shadow-3xl transition-all duration-500 backdrop-blur-xl overflow-hidden group"
       initial={{ opacity: 0, y: 20 }}
       animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.6, delay: index * 0.1 }} // ✅ FIXED: multiplication
+      transition={{ duration: 0.6, delay: index * 0.1 }}
       whileHover={{ scale: 1.02, y: -5 }}
     >
-      <div className="p-6">
-        <div className="flex justify-between items-start mb-4">
-          <h3 className="font-bold text-white text-lg line-clamp-2 group-hover:text-cyan-400 transition-colors">
+      <div className="p-4 sm:p-6">
+        <div className="flex justify-between items-start mb-3 sm:mb-4">
+          <h3 className="font-bold text-white text-base sm:text-lg line-clamp-2 group-hover:text-cyan-400 transition-colors pr-2">
             {course.title}
           </h3>
-          <div className="text-2xl">⭐</div>
+          <div className="text-lg sm:text-2xl flex-shrink-0">⭐</div>
         </div>
 
-        <p className="text-gray-300 text-sm mb-4 line-clamp-3">
+        <p className="text-gray-300 text-xs sm:text-sm mb-3 sm:mb-4 line-clamp-3">
           {course.description}
         </p>
 
-        <div className="flex justify-between items-center mb-4">
-          <div className="flex items-center gap-4 text-sm text-gray-400">
+        <div className="flex justify-between items-center mb-3 sm:mb-4">
+          <div className="flex items-center gap-2 sm:gap-4 text-xs sm:text-sm text-gray-400">
             <span className="flex items-center gap-1">
               📚 {course.lectures?.length || 0}
             </span>
@@ -1434,22 +1458,22 @@ const ModernAvailableCourseCard = ({ course, onEnroll, index }) => {
               👥 {course.studentsEnrolled?.length || 0}
             </span>
           </div>
-          <div className="text-2xl font-bold text-cyan-400">
+          <div className="text-lg sm:text-2xl font-bold text-cyan-400">
             &#8377;{course.price}
           </div>
         </div>
 
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-2">
-            <div className="flex text-yellow-400">
+        <div className="flex items-center justify-between mb-4 sm:mb-6">
+          <div className="flex items-center gap-1 sm:gap-2">
+            <div className="flex text-yellow-400 text-sm sm:text-base">
               {"⭐".repeat(Math.round(course.averageRating || 0))}
             </div>
-            <span className="text-sm text-gray-400">
+            <span className="text-xs sm:text-sm text-gray-400">
               {course.averageRating?.toFixed(1) || 0} (
               {course.totalReviews || 0})
             </span>
           </div>
-          <span className="text-md text-red-500">
+          <span className="text-xs sm:text-md text-red-500">
             By {course.createdBy?.name}
           </span>
         </div>
@@ -1457,14 +1481,14 @@ const ModernAvailableCourseCard = ({ course, onEnroll, index }) => {
         <motion.button
           onClick={handleEnroll}
           disabled={enrolling}
-          className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-6 py-3 rounded-2xl font-bold transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2"
+          className="w-full bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 text-sm sm:text-base"
           whileHover={{ scale: 1.02 }}
           whileTap={{ scale: 0.98 }}
         >
           {enrolling ? (
             <>
               <motion.div
-                className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full"
                 animate={{ rotate: 360 }}
                 transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
               />
