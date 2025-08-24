@@ -25,26 +25,32 @@ const paymentRoutes = require('./routes/payment');
 const aiRoutes = require('./routes/ai');
 const notesRoutes = require('./routes/notes');
 
-
 // App setup
 const app = express();
-const allowedOrigins = [
-  "https://trainify-learning-platform.vercel.app", // deployed frontend
-  "http://localhost:5173" // local dev frontend
-];
+
+// Allowed origins for CORS
+const allowedOrigins = [process.env.CLIENT_URL, process.env.CLIENT_URL_PROD];
+
 // Middleware
 app.use(cors({
   origin: function(origin, callback){
-    // allow requests with no origin like Postman
-    if(!origin) return callback(null, true);
-    if(allowedOrigins.indexOf(origin) === -1){
-      const msg = `The CORS policy for this site does not allow access from the specified Origin.`;
-      return callback(new Error(msg), false);
+    if(!origin) return callback(null, true); // allow Postman, mobile apps
+    if(!allowedOrigins.includes(origin)){
+      return callback(new Error("CORS policy does not allow access from this origin"), false);
     }
     return callback(null, true);
   },
-  credentials: true // allow cookies
+  credentials: true // allow cookies/auth headers
 }));
+
+// Middleware to parse JSON
+app.use(express.json());
+
+// Helper middleware for setting cookies in cross-domain
+app.use((req, res, next) => {
+  res.setHeader("Access-Control-Allow-Credentials", "true");
+  next();
+});
 
 // Health check route
 app.get('/api/test', (req, res) => {
@@ -64,6 +70,7 @@ app.use('/api/activity', activityRoutes);
 app.use("/api/payment", paymentRoutes);
 app.use('/api/ai', aiRoutes);
 app.use('/api/notes', notesRoutes);
+
 // Root route
 app.get('/', (req, res) => {
   res.json({
@@ -71,8 +78,6 @@ app.get('/', (req, res) => {
     docs: '/api/test'
   });
 });
-
-
 
 // Start server
 const PORT = process.env.PORT || 5000;
