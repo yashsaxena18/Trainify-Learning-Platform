@@ -191,14 +191,15 @@ const AdminDashboard = () => {
       </div>
 
       {/* Header */}
+      {/* Header */}
       <div className="relative backdrop-blur-xl bg-white/10 border-b border-white/20 shadow-2xl">
-        <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center">
+        <div className="max-w-7xl mx-auto py-4 sm:py-8 px-3 sm:px-6 lg:px-8">
+          <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center space-y-3 sm:space-y-0">
             <div className="animate-fade-in-up">
-              <h1 className="text-4xl font-bold bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
+              <h1 className="text-2xl sm:text-4xl font-bold bg-gradient-to-r from-white to-purple-200 bg-clip-text text-transparent">
                 Admin Dashboard
               </h1>
-              <p className="text-white/70 mt-2 text-lg">
+              <p className="text-white/70 mt-1 sm:mt-2 text-sm sm:text-lg">
                 Welcome back,{" "}
                 <span className="font-semibold text-white">{user?.name}</span>!
                 <span className="block sm:inline">
@@ -207,8 +208,8 @@ const AdminDashboard = () => {
                 </span>
               </p>
             </div>
-            <div className="flex items-center space-x-4 animate-fade-in-down">
-              <div className="bg-gradient-to-r from-green-400 to-emerald-500 text-white px-4 py-2 rounded-full text-sm font-medium shadow-lg animate-pulse">
+            <div className="flex items-center space-x-2 sm:space-x-4 animate-fade-in-down">
+              <div className="bg-gradient-to-r from-green-400 to-emerald-500 text-white px-3 sm:px-4 py-1.5 sm:py-2 rounded-full text-xs sm:text-sm font-medium shadow-lg animate-pulse">
                 <div className="flex items-center gap-2">
                   <div className="w-2 h-2 bg-white rounded-full animate-ping"></div>
                   System Healthy
@@ -220,37 +221,57 @@ const AdminDashboard = () => {
       </div>
 
       {/* Navigation Tabs */}
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex space-x-1 pt-6 backdrop-blur-sm bg-white/5 rounded-2xl mt-6 p-2">
-          {[
-            { id: "overview", name: "Overview", icon: "📊" },
-            { id: "users", name: "Users", icon: "👥" },
-            { id: "instructors", name: "Instructors", icon: "👨‍🏫" },
-            { id: "courses", name: "Courses", icon: "📚" },
-            { id: "moderation", name: "Moderation", icon: "🛡️" },
-          ].map(({ id, name, icon }) => (
-            <button
-              key={id}
-              onClick={() => setActiveTab(id)}
-              className={`flex items-center gap-2 py-3 px-6 rounded-xl font-medium text-sm transition-all duration-300 transform hover:scale-105 ${
-                activeTab === id
-                  ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/25"
-                  : "text-white/70 hover:text-white hover:bg-white/10"
-              }`}
+      {/* Navigation Tabs */}
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8">
+        <div className="pt-4 sm:pt-6">
+          {/* Mobile Dropdown Menu */}
+          <div className="sm:hidden backdrop-blur-sm bg-white/5 rounded-2xl p-2 mb-4">
+            <select
+              value={activeTab}
+              onChange={(e) => setActiveTab(e.target.value)}
+              className="w-full bg-gradient-to-r from-purple-500 to-pink-500 text-white py-3 px-4 rounded-xl font-medium text-sm border-none outline-none"
             >
-              <span className="text-lg">{icon}</span>
-              {name}
-            </button>
-          ))}
+              <option value="overview">📊 Overview</option>
+              <option value="users">👥 Users</option>
+              <option value="instructors">👨‍🏫 Instructors</option>
+              <option value="courses">📚 Courses</option>
+              <option value="moderation">🛡️ Moderation</option>
+            </select>
+          </div>
+
+          {/* Desktop Tabs */}
+          <div className="hidden sm:flex space-x-1 backdrop-blur-sm bg-white/5 rounded-2xl p-2">
+            {[
+              { id: "overview", name: "Overview", icon: "📊" },
+              { id: "users", name: "Users", icon: "👥" },
+              { id: "instructors", name: "Instructors", icon: "👨‍🏫" },
+              { id: "courses", name: "Courses", icon: "📚" },
+              { id: "moderation", name: "Moderation", icon: "🛡️" },
+            ].map(({ id, name, icon }) => (
+              <button
+                key={id}
+                onClick={() => setActiveTab(id)}
+                className={`flex items-center gap-2 py-3 px-4 lg:px-6 rounded-xl font-medium text-sm transition-all duration-300 transform hover:scale-105 ${
+                  activeTab === id
+                    ? "bg-gradient-to-r from-purple-500 to-pink-500 text-white shadow-lg shadow-purple-500/25"
+                    : "text-white/70 hover:text-white hover:bg-white/10"
+                }`}
+              >
+                <span className="text-lg">{icon}</span>
+                <span className="hidden lg:inline">{name}</span>
+              </button>
+            ))}
+          </div>
         </div>
       </div>
 
-      <div className="max-w-7xl mx-auto py-8 px-4 sm:px-6 lg:px-8">
+      <div className="max-w-7xl mx-auto py-4 sm:py-8 px-3 sm:px-6 lg:px-8">
         {/* Overview Tab */}
         {activeTab === "overview" && (
           <div className="space-y-8 animate-fade-in">
             {/* Stats Grid */}
-            <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            {/* Stats Grid */}
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6">
               <StatCard
                 title="Total Users"
                 value={adminStats.totalUsers}
@@ -286,28 +307,29 @@ const AdminDashboard = () => {
             </div>
 
             {/* Platform Activity & Quick Actions */}
-            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-              <div className="backdrop-blur-xl bg-white/10 rounded-3xl p-8 border border-white/20 shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 animate-slide-in-left">
-                <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                  <span className="text-3xl">📈</span>
+            {/* Platform Activity & Quick Actions */}
+            <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 sm:gap-8">
+              <div className="backdrop-blur-xl bg-white/10 rounded-2xl sm:rounded-3xl p-4 sm:p-8 border border-white/20 shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 animate-slide-in-left">
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6 flex items-center gap-3">
+                  <span className="text-2xl sm:text-3xl">📈</span>
                   Platform Activity
                 </h3>
-                <div className="space-y-4 max-h-80 overflow-y-auto custom-scrollbar">
+                <div className="space-y-3 sm:space-y-4 max-h-60 sm:max-h-80 overflow-y-auto custom-scrollbar">
                   {recentActivity.length > 0 ? (
                     recentActivity.map((activity, index) => (
                       <div
                         key={index}
-                        className="flex items-center justify-between p-4 bg-white/5 rounded-2xl border border-white/10 hover:bg-white/10 transition-all duration-300 transform hover:scale-[1.02]"
+                        className="flex items-center justify-between p-3 sm:p-4 bg-white/5 rounded-xl sm:rounded-2xl border border-white/10 hover:bg-white/10 transition-all duration-300 transform hover:scale-[1.02]"
                         style={{ animationDelay: `${index * 100}ms` }}
                       >
-                        <div className="flex items-center gap-4">
+                        <div className="flex items-center gap-3 sm:gap-4 flex-1 min-w-0">
                           <div
                             className={`w-3 h-3 rounded-full ${getActivityColor(
                               activity.type
-                            )} animate-pulse`}
+                            )} animate-pulse flex-shrink-0`}
                           ></div>
-                          <div>
-                            <p className="text-sm font-medium text-white">
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs sm:text-sm font-medium text-white truncate">
                               {activity.description}
                             </p>
                             <p className="text-xs text-white/50">
@@ -315,36 +337,42 @@ const AdminDashboard = () => {
                             </p>
                           </div>
                         </div>
-                        <span className="text-xs text-white/40 bg-white/5 px-3 py-1 rounded-full">
+                        <span className="text-xs text-white/40 bg-white/5 px-2 sm:px-3 py-1 rounded-full ml-2 flex-shrink-0">
                           {activity.user}
                         </span>
                       </div>
                     ))
                   ) : (
-                    <div className="text-center py-8">
-                      <div className="text-6xl mb-4 opacity-50">📊</div>
-                      <p className="text-white/50">No recent activity</p>
+                    <div className="text-center py-6 sm:py-8">
+                      <div className="text-4xl sm:text-6xl mb-4 opacity-50">
+                        📊
+                      </div>
+                      <p className="text-white/50 text-sm sm:text-base">
+                        No recent activity
+                      </p>
                     </div>
                   )}
                 </div>
               </div>
 
-              <div className="backdrop-blur-xl bg-white/10 rounded-3xl p-8 border border-white/20 shadow-2xl hover:shadow-pink-500/10 transition-all duration-500 animate-slide-in-right">
-                <h3 className="text-2xl font-bold text-white mb-6 flex items-center gap-3">
-                  <span className="text-3xl">⚡</span>
+              <div className="backdrop-blur-xl bg-white/10 rounded-2xl sm:rounded-3xl p-4 sm:p-8 border border-white/20 shadow-2xl hover:shadow-pink-500/10 transition-all duration-500 animate-slide-in-right">
+                <h3 className="text-xl sm:text-2xl font-bold text-white mb-4 sm:mb-6 flex items-center gap-3">
+                  <span className="text-2xl sm:text-3xl">⚡</span>
                   Quick Actions
                 </h3>
-                <div className="space-y-4">
+                <div className="space-y-3 sm:space-y-4">
                   <button
                     onClick={() => setActiveTab("users")}
-                    className="w-full text-left p-5 hover:bg-white/10 rounded-2xl transition-all duration-300 flex items-center gap-4 group border border-white/10 hover:border-white/30 transform hover:scale-[1.02]"
+                    className="w-full text-left p-4 sm:p-5 hover:bg-white/10 rounded-xl sm:rounded-2xl transition-all duration-300 flex items-center gap-3 sm:gap-4 group border border-white/10 hover:border-white/30 transform hover:scale-[1.02]"
                   >
-                    <div className="w-12 h-12 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-blue-500/25 transition-all duration-300">
-                      <span className="text-2xl">👥</span>
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-blue-400 to-cyan-400 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-blue-500/25 transition-all duration-300 flex-shrink-0">
+                      <span className="text-xl sm:text-2xl">👥</span>
                     </div>
-                    <div>
-                      <p className="font-semibold text-white">Manage Users</p>
-                      <p className="text-sm text-white/60">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-white text-sm sm:text-base">
+                        Manage Users
+                      </p>
+                      <p className="text-xs sm:text-sm text-white/60">
                         {adminStats.totalUsers} total users
                       </p>
                     </div>
@@ -352,14 +380,16 @@ const AdminDashboard = () => {
 
                   <button
                     onClick={() => setActiveTab("courses")}
-                    className="w-full text-left p-5 hover:bg-white/10 rounded-2xl transition-all duration-300 flex items-center gap-4 group border border-white/10 hover:border-white/30 transform hover:scale-[1.02]"
+                    className="w-full text-left p-4 sm:p-5 hover:bg-white/10 rounded-xl sm:rounded-2xl transition-all duration-300 flex items-center gap-3 sm:gap-4 group border border-white/10 hover:border-white/30 transform hover:scale-[1.02]"
                   >
-                    <div className="w-12 h-12 bg-gradient-to-r from-green-400 to-emerald-400 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-green-500/25 transition-all duration-300">
-                      <span className="text-2xl">📚</span>
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-green-400 to-emerald-400 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-green-500/25 transition-all duration-300 flex-shrink-0">
+                      <span className="text-xl sm:text-2xl">📚</span>
                     </div>
-                    <div>
-                      <p className="font-semibold text-white">Review Courses</p>
-                      <p className="text-sm text-white/60">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-white text-sm sm:text-base">
+                        Review Courses
+                      </p>
+                      <p className="text-xs sm:text-sm text-white/60">
                         {pendingApprovals.length} pending approval
                       </p>
                     </div>
@@ -367,16 +397,18 @@ const AdminDashboard = () => {
 
                   <button
                     onClick={() => setActiveTab("moderation")}
-                    className="w-full text-left p-5 hover:bg-white/10 rounded-2xl transition-all duration-300 flex items-center gap-4 group border border-white/10 hover:border-white/30 transform hover:scale-[1.02]"
+                    className="w-full text-left p-4 sm:p-5 hover:bg-white/10 rounded-xl sm:rounded-2xl transition-all duration-300 flex items-center gap-3 sm:gap-4 group border border-white/10 hover:border-white/30 transform hover:scale-[1.02]"
                   >
-                    <div className="w-12 h-12 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-yellow-500/25 transition-all duration-300">
-                      <span className="text-2xl">🛡️</span>
+                    <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-xl sm:rounded-2xl flex items-center justify-center shadow-lg group-hover:shadow-yellow-500/25 transition-all duration-300 flex-shrink-0">
+                      <span className="text-xl sm:text-2xl">🛡️</span>
                     </div>
-                    <div>
-                      <p className="font-semibold text-white">
+                    <div className="min-w-0 flex-1">
+                      <p className="font-semibold text-white text-sm sm:text-base">
                         Moderation Queue
                       </p>
-                      <p className="text-sm text-white/60">Platform safety</p>
+                      <p className="text-xs sm:text-sm text-white/60">
+                        Platform safety
+                      </p>
                     </div>
                   </button>
                 </div>
@@ -849,146 +881,40 @@ const AdminDashboard = () => {
           </div>
         )}
       </div>
-
-      <style jsx>{`
-        @keyframes fade-in {
-          from {
-            opacity: 0;
-            transform: translateY(20px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes fade-in-up {
-          from {
-            opacity: 0;
-            transform: translateY(30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes fade-in-down {
-          from {
-            opacity: 0;
-            transform: translateY(-30px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
-        }
-
-        @keyframes slide-in-left {
-          from {
-            opacity: 0;
-            transform: translateX(-50px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-
-        @keyframes slide-in-right {
-          from {
-            opacity: 0;
-            transform: translateX(50px);
-          }
-          to {
-            opacity: 1;
-            transform: translateX(0);
-          }
-        }
-
-        @keyframes scale-in {
-          from {
-            opacity: 0;
-            transform: scale(0.9);
-          }
-          to {
-            opacity: 1;
-            transform: scale(1);
-          }
-        }
-
-        .animate-fade-in {
-          animation: fade-in 0.6s ease-out forwards;
-        }
-        .animate-fade-in-up {
-          animation: fade-in-up 0.8s ease-out forwards;
-        }
-        .animate-fade-in-down {
-          animation: fade-in-down 0.8s ease-out forwards;
-        }
-        .animate-slide-in-left {
-          animation: slide-in-left 0.8s ease-out forwards;
-        }
-        .animate-slide-in-right {
-          animation: slide-in-right 0.8s ease-out forwards;
-        }
-        .animate-scale-in {
-          animation: scale-in 0.5s ease-out forwards;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar {
-          width: 6px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-track {
-          background: rgba(255, 255, 255, 0.1);
-          border-radius: 10px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-          background: rgba(255, 255, 255, 0.3);
-          border-radius: 10px;
-        }
-
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-          background: rgba(255, 255, 255, 0.5);
-        }
-      `}</style>
     </div>
   );
 };
 
-// Enhanced StatCard Component
+// Enhanced StatCard Component - Mobile Responsive
 const StatCard = ({ title, value, icon, gradient, subtitle, delay }) => (
   <div
-    className={`backdrop-blur-xl bg-white/10 border border-white/20 rounded-3xl p-6 shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 transform hover:scale-[1.02] animate-scale-in`}
+    className={`backdrop-blur-xl bg-white/10 border border-white/20 rounded-2xl sm:rounded-3xl p-4 sm:p-6 shadow-2xl hover:shadow-purple-500/10 transition-all duration-500 transform hover:scale-[1.02] animate-scale-in`}
     style={{ animationDelay: delay }}
   >
     <div className="flex items-center justify-between">
       <div className="flex-1">
-        <div className="flex items-center gap-4 mb-4">
+        <div className="flex items-center gap-3 sm:gap-4 mb-3 sm:mb-4">
           <div
-            className={`w-14 h-14 bg-gradient-to-r ${gradient} rounded-2xl flex items-center justify-center text-2xl shadow-lg`}
+            className={`w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r ${gradient} rounded-xl sm:rounded-2xl flex items-center justify-center text-xl sm:text-2xl shadow-lg flex-shrink-0`}
           >
             {icon}
           </div>
-          <div>
-            <p className="text-white/70 text-sm font-medium">{title}</p>
-            <p className="text-3xl font-bold text-white">
+          <div className="min-w-0 flex-1">
+            <p className="text-white/70 text-xs sm:text-sm font-medium truncate">{title}</p>
+            <p className="text-2xl sm:text-3xl font-bold text-white">
               {typeof value === "number" ? value.toLocaleString() : value}
             </p>
           </div>
         </div>
         {subtitle && (
-          <div className="bg-white/5 rounded-xl p-3 border border-white/10">
-            <p className="text-white/60 text-sm">{subtitle}</p>
+          <div className="bg-white/5 rounded-lg sm:rounded-xl p-2 sm:p-3 border border-white/10">
+            <p className="text-white/60 text-xs sm:text-sm">{subtitle}</p>
           </div>
         )}
       </div>
     </div>
   </div>
 );
-
 // Helper function for activity colors
 const getActivityColor = (type) => {
   switch (type) {
