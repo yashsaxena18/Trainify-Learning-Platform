@@ -47,19 +47,7 @@ app.use(cors({
   allowedHeaders: ["Content-Type","Authorization","Accept"]
 }));
 
-// Handle preflight requests
-app.options("*", cors({
-  origin: function(origin, callback) {
-    if (!origin) return callback(null, true);
-    if (!allowedOrigins.includes(origin)) {
-      return callback(new Error("CORS policy does not allow access from this origin"), false);
-    }
-    return callback(null, true);
-  },
-  credentials: true,
-  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
-  allowedHeaders: ["Content-Type","Authorization","Accept"]
-}));
+
 
 // -------------------- Middleware --------------------
 app.use(express.json()); // parse JSON
