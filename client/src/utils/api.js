@@ -1,5 +1,5 @@
 // src/utils/api.js
-export const BASE_URL = "http://localhost:5000/api";
+export const BASE_URL = "https://trainify-learning-platform.onrender.com/api";
 
 // You can also add other API-related constants
 export const API_ENDPOINTS = {
