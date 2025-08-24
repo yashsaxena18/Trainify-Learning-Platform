@@ -419,26 +419,26 @@ const CoursePlayer = () => {
 
     return (
       <motion.div
-        className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-4"
+        className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-2 sm:p-4"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
       >
         <motion.div
-          className="bg-gradient-to-br from-white to-gray-50 rounded-3xl p-8 max-w-md w-full shadow-2xl border border-white/20"
+          className="bg-gradient-to-br from-white to-gray-50 rounded-2xl sm:rounded-3xl p-4 sm:p-8 max-w-md w-full shadow-2xl border border-white/20 mx-2 sm:mx-0 max-h-[95vh] overflow-y-auto"
           initial={{ scale: 0.8, opacity: 0, y: 20 }}
           animate={{ scale: 1, opacity: 1, y: 0 }}
           exit={{ scale: 0.8, opacity: 0, y: 20 }}
           transition={{ type: "spring", bounce: 0.4 }}
         >
-          <div className="text-center mb-6">
+          <div className="text-center mb-4 sm:mb-6">
             <motion.div
-              className="w-20 h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg"
+              className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg"
               whileHover={{ scale: 1.1, rotate: 360 }}
               transition={{ duration: 0.5 }}
             >
               <svg
-                className="w-10 h-10 text-white"
+                className="w-8 h-8 sm:w-10 sm:h-10 text-white"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -451,24 +451,26 @@ const CoursePlayer = () => {
                 />
               </svg>
             </motion.div>
-            <h3 className="text-2xl font-black text-gray-900 mb-2">
+            <h3 className="text-xl sm:text-2xl font-black text-gray-900 mb-1 sm:mb-2">
               Rate Your Experience
             </h3>
-            <p className="text-gray-600">How was "{course?.title}"?</p>
+            <p className="text-sm sm:text-base text-gray-600">
+              How was "{course?.title}"?
+            </p>
           </div>
 
-          <form onSubmit={handleSubmit} className="space-y-6">
+          <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6">
             <div className="text-center">
-              <label className="block text-sm font-bold text-gray-700 mb-3">
+              <label className="block text-sm font-bold text-gray-700 mb-2 sm:mb-3">
                 Your Rating
               </label>
-              <div className="flex items-center justify-center gap-2 mb-3">
+              <div className="flex items-center justify-center gap-1 sm:gap-2 mb-2 sm:mb-3">
                 {[1, 2, 3, 4, 5].map((star) => (
                   <motion.button
                     key={star}
                     type="button"
                     onClick={() => setLocalRating(star)}
-                    className={`text-4xl transition-all duration-200 cursor-pointer ${
+                    className={`text-3xl sm:text-4xl transition-all duration-200 cursor-pointer ${
                       star <= localRating
                         ? "text-yellow-400"
                         : "text-gray-300 hover:text-yellow-300"
@@ -480,7 +482,7 @@ const CoursePlayer = () => {
                   </motion.button>
                 ))}
               </div>
-              <p className="text-sm text-gray-500 font-medium">
+              <p className="text-xs sm:text-sm text-gray-500 font-medium">
                 {localRating > 0
                   ? `${localRating} out of 5 stars`
                   : "Click to rate"}
@@ -488,24 +490,24 @@ const CoursePlayer = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-bold text-gray-700 mb-3">
+              <label className="block text-sm font-bold text-gray-700 mb-2 sm:mb-3">
                 Your Review
               </label>
               <textarea
-                rows={4}
+                rows={3}
                 value={localComment}
                 onChange={(e) => setLocalComment(e.target.value)}
-                className="w-full px-4 py-3 border-2 border-gray-200 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none font-medium"
+                className="w-full px-3 sm:px-4 py-2 sm:py-3 border-2 border-gray-200 rounded-xl sm:rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent resize-none font-medium text-sm sm:text-base"
                 placeholder="Share your experience with this course..."
                 maxLength={500}
                 required
               />
-              <p className="text-xs text-gray-500 mt-2 font-medium">
+              <p className="text-xs text-gray-500 mt-1 sm:mt-2 font-medium">
                 {localComment.length}/500 characters
               </p>
             </div>
 
-            <div className="flex gap-3 pt-2">
+            <div className="flex gap-2 sm:gap-3 pt-1 sm:pt-2">
               <motion.button
                 type="button"
                 onClick={() => {
@@ -513,7 +515,7 @@ const CoursePlayer = () => {
                   setLocalRating(5);
                   setLocalComment("");
                 }}
-                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 px-6 py-3 rounded-2xl font-bold transition-colors"
+                className="flex-1 bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold transition-colors text-sm sm:text-base"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
@@ -522,14 +524,14 @@ const CoursePlayer = () => {
               <motion.button
                 type="submit"
                 disabled={submitting || !localRating || !localComment.trim()}
-                className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-2xl font-bold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+                className="flex-1 bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed text-sm sm:text-base"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
                 {submitting ? (
                   <div className="flex items-center justify-center gap-2">
                     <motion.div
-                      className="w-5 h-5 border-2 border-white border-t-transparent rounded-full"
+                      className="w-4 h-4 sm:w-5 sm:h-5 border-2 border-white border-t-transparent rounded-full"
                       animate={{ rotate: 360 }}
                       transition={{
                         duration: 1,
@@ -537,7 +539,8 @@ const CoursePlayer = () => {
                         ease: "linear",
                       }}
                     />
-                    Submitting...
+                    <span className="hidden xs:inline">Submitting...</span>
+                    <span className="xs:hidden">...</span>
                   </div>
                 ) : (
                   "✨ Submit Review"
@@ -553,21 +556,21 @@ const CoursePlayer = () => {
   // Modern Congratulations Modal
   const CongratulationsModal = () => (
     <motion.div
-      className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999]"
+      className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-[9999] p-2 sm:p-4"
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
     >
       <motion.div
-        className="bg-gradient-to-br from-white to-gray-50 rounded-3xl p-10 max-w-lg mx-4 text-center shadow-2xl border border-white/20"
+        className="bg-gradient-to-br from-white to-gray-50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-10 w-full max-w-sm sm:max-w-lg mx-2 sm:mx-4 text-center shadow-2xl border border-white/20 max-h-[90vh] overflow-y-auto"
         initial={{ scale: 0.8, opacity: 0, y: 50 }}
         animate={{ scale: 1, opacity: 1, y: 0 }}
         exit={{ scale: 0.8, opacity: 0, y: 50 }}
         transition={{ type: "spring", bounce: 0.4 }}
       >
-        <div className="mb-8">
+        <div className="mb-6 sm:mb-8">
           <motion.div
-            className="w-24 h-24 bg-gradient-to-br from-green-400 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-6 shadow-2xl"
+            className="w-16 h-16 sm:w-20 sm:h-20 lg:w-24 lg:h-24 bg-gradient-to-br from-green-400 to-emerald-600 rounded-full flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-2xl"
             animate={{
               scale: [1, 1.1, 1],
               rotate: [0, 10, -10, 0],
@@ -575,7 +578,7 @@ const CoursePlayer = () => {
             transition={{ duration: 2, repeat: Infinity }}
           >
             <svg
-              className="w-12 h-12 text-white"
+              className="w-8 h-8 sm:w-10 sm:h-10 lg:w-12 lg:h-12 text-white"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -590,7 +593,7 @@ const CoursePlayer = () => {
           </motion.div>
 
           <motion.h2
-            className="text-4xl font-black text-gray-900 mb-4"
+            className="text-2xl sm:text-3xl lg:text-4xl font-black text-gray-900 mb-3 sm:mb-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.2 }}
@@ -598,7 +601,7 @@ const CoursePlayer = () => {
             🎉 Congratulations!
           </motion.h2>
           <motion.p
-            className="text-lg text-gray-600 mb-3"
+            className="text-base sm:text-lg text-gray-600 mb-2 sm:mb-3"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
@@ -606,7 +609,7 @@ const CoursePlayer = () => {
             You have successfully completed:
           </motion.p>
           <motion.p
-            className="text-xl font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-6 px-4"
+            className="text-lg sm:text-xl font-bold text-transparent bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text mb-4 sm:mb-6 px-2 sm:px-4 break-words"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
@@ -614,18 +617,18 @@ const CoursePlayer = () => {
             "{course?.title}"
           </motion.p>
           <motion.div
-            className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-2xl p-4 mb-6"
+            className="bg-gradient-to-r from-green-50 to-emerald-50 border-2 border-green-200 rounded-xl sm:rounded-2xl p-3 sm:p-4 mb-4 sm:mb-6"
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.5 }}
           >
-            <p className="text-sm text-green-700 font-bold">
+            <p className="text-xs sm:text-sm text-green-700 font-bold break-words">
               ✅ Progress: {progress.percentage} • {progress.completedLectures}/
               {progress.totalLectures} lectures completed
             </p>
           </motion.div>
           <motion.p
-            className="text-sm text-gray-500 font-medium"
+            className="text-xs sm:text-sm text-gray-500 font-medium"
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ delay: 0.6 }}
@@ -635,7 +638,7 @@ const CoursePlayer = () => {
         </div>
 
         <motion.div
-          className="space-y-4"
+          className="space-y-3 sm:space-y-4"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.7 }}
@@ -646,12 +649,12 @@ const CoursePlayer = () => {
                 setShowCongratulations(false);
                 setShowReviewModal(true);
               }}
-              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 flex items-center justify-center gap-3 shadow-lg"
+              className="w-full bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 sm:px-6 lg:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-bold text-sm sm:text-base lg:text-lg transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3 shadow-lg"
               whileHover={{ scale: 1.02, y: -2 }}
               whileTap={{ scale: 0.98 }}
             >
               <svg
-                className="w-6 h-6"
+                className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -663,7 +666,7 @@ const CoursePlayer = () => {
                   d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
                 />
               </svg>
-              ⭐ Rate This Course
+              <span className="truncate">⭐ Rate This Course</span>
             </motion.button>
           )}
 
@@ -674,12 +677,12 @@ const CoursePlayer = () => {
                 state: { activeTab: "certificates" },
               });
             }}
-            className="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white px-8 py-4 rounded-2xl font-bold text-lg transition-all duration-300 flex items-center justify-center gap-3 shadow-lg"
+            className="w-full bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white px-4 sm:px-6 lg:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-bold text-sm sm:text-base lg:text-lg transition-all duration-300 flex items-center justify-center gap-2 sm:gap-3 shadow-lg"
             whileHover={{ scale: 1.02, y: -2 }}
             whileTap={{ scale: 0.98 }}
           >
             <svg
-              className="w-6 h-6"
+              className="w-4 h-4 sm:w-5 sm:h-5 lg:w-6 lg:h-6"
               fill="none"
               stroke="currentColor"
               viewBox="0 0 24 24"
@@ -691,12 +694,12 @@ const CoursePlayer = () => {
                 d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
               />
             </svg>
-            🏆 Download Certificate
+            <span className="truncate">🏆 Download Certificate</span>
           </motion.button>
 
           <motion.button
             onClick={() => setShowCongratulations(false)}
-            className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 px-8 py-3 rounded-2xl font-bold transition-colors"
+            className="w-full bg-gray-200 hover:bg-gray-300 text-gray-700 px-4 sm:px-6 lg:px-8 py-2 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-sm sm:text-base transition-colors"
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.98 }}
           >
@@ -709,14 +712,14 @@ const CoursePlayer = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900 p-4">
         <motion.div
           className="relative"
           animate={{ rotate: 360 }}
           transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
         >
-          <div className="w-32 h-32 border-4 border-transparent border-t-cyan-400 border-r-purple-400 rounded-full shadow-2xl"></div>
-          <div className="absolute inset-4 border-4 border-transparent border-b-pink-400 border-l-yellow-400 rounded-full"></div>
+          <div className="w-24 h-24 sm:w-32 sm:h-32 border-4 border-transparent border-t-cyan-400 border-r-purple-400 rounded-full shadow-2xl"></div>
+          <div className="absolute inset-3 sm:inset-4 border-4 border-transparent border-b-pink-400 border-l-yellow-400 rounded-full"></div>
         </motion.div>
       </div>
     );
@@ -724,22 +727,22 @@ const CoursePlayer = () => {
 
   if (!lectures.length) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-slate-900">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-gray-900 to-slate-900 p-4">
         <motion.div
-          className="text-center p-8"
+          className="text-center p-4 sm:p-8 max-w-md mx-auto"
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
         >
-          <div className="text-8xl mb-6">📚</div>
-          <h2 className="text-3xl font-bold text-white mb-4">
+          <div className="text-6xl sm:text-8xl mb-4 sm:mb-6">📚</div>
+          <h2 className="text-2xl sm:text-3xl font-bold text-white mb-3 sm:mb-4">
             No Lectures Available
           </h2>
-          <p className="text-gray-300 mb-8 text-lg">
+          <p className="text-gray-300 mb-6 sm:mb-8 text-base sm:text-lg">
             This course doesn't have any lectures yet.
           </p>
           <motion.button
             onClick={handleBackToDashboard}
-            className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-8 py-4 rounded-2xl font-bold text-lg shadow-lg"
+            className="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl sm:rounded-2xl font-bold text-base sm:text-lg shadow-lg w-full sm:w-auto"
             whileHover={{ scale: 1.05, y: -2 }}
             whileTap={{ scale: 0.95 }}
           >
@@ -759,17 +762,17 @@ const CoursePlayer = () => {
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 0.6 }}
       >
-        <div className="max-w-7xl mx-auto px-4 py-6">
+        <div className="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
           <div className="flex items-center justify-between">
-            <div>
+            <div className="flex-1 min-w-0">
               <motion.button
                 onClick={handleBackToDashboard}
-                className="text-white/90 hover:text-white mb-3 flex items-center gap-2 text-sm font-medium bg-white/10 rounded-full px-4 py-2 backdrop-blur-sm border border-white/20 transition-all duration-300"
+                className="text-white/90 hover:text-white mb-2 sm:mb-3 flex items-center gap-2 text-xs sm:text-sm font-medium bg-white/10 rounded-full px-3 sm:px-4 py-1.5 sm:py-2 backdrop-blur-sm border border-white/20 transition-all duration-300"
                 whileHover={{ scale: 1.05, x: -5 }}
                 whileTap={{ scale: 0.95 }}
               >
                 <svg
-                  className="w-4 h-4"
+                  className="w-3 h-3 sm:w-4 sm:h-4"
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -784,7 +787,7 @@ const CoursePlayer = () => {
                 Back to Dashboard
               </motion.button>
               <motion.h1
-                className="text-2xl md:text-3xl font-black text-white mb-2"
+                className="text-lg sm:text-xl md:text-2xl lg:text-3xl font-black text-white mb-2 sm:mb-2 line-clamp-2 break-words"
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.2 }}
@@ -792,17 +795,17 @@ const CoursePlayer = () => {
                 {course?.title}
               </motion.h1>
               <motion.div
-                className="flex flex-col sm:flex-row sm:items-center text-sm text-blue-100 gap-2"
+                className="flex flex-col gap-2 text-xs sm:text-sm text-blue-100"
                 initial={{ x: -20, opacity: 0 }}
                 animate={{ x: 0, opacity: 1 }}
                 transition={{ delay: 0.3 }}
               >
-                <div className="bg-white/10 rounded-full px-4 py-1 backdrop-blur-sm">
+                <div className="bg-white/10 rounded-full px-3 sm:px-4 py-1 backdrop-blur-sm inline-block w-fit">
                   <span className="font-bold">
                     Progress: {progress.percentage || "0%"}
                   </span>
                 </div>
-                <div className="bg-white/10 rounded-full px-4 py-1 backdrop-blur-sm">
+                <div className="bg-white/10 rounded-full px-3 sm:px-4 py-1 backdrop-blur-sm inline-block w-fit">
                   <span>
                     {progress.completedLectures || 0} of{" "}
                     {progress.totalLectures || lectures.length} lectures
@@ -815,15 +818,15 @@ const CoursePlayer = () => {
           {/* Enhanced Certificate/Review Section */}
           {showCertificateButton && (
             <motion.div
-              className="mt-6 p-6 bg-gradient-to-r from-green-400/20 to-emerald-500/20 border border-green-400/30 rounded-2xl backdrop-blur-sm"
+              className="mt-4 sm:mt-6 p-4 sm:p-6 bg-gradient-to-r from-green-400/20 to-emerald-500/20 border border-green-400/30 rounded-xl sm:rounded-2xl backdrop-blur-sm"
               initial={{ opacity: 0, y: 20, scale: 0.95 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ delay: 0.4 }}
             >
-              <div className="flex items-center justify-between">
-                <div className="flex items-center gap-4">
+              <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+                <div className="flex items-center gap-3 sm:gap-4">
                   <motion.div
-                    className="w-14 h-14 bg-gradient-to-br from-green-400 to-emerald-600 rounded-full flex items-center justify-center shadow-lg"
+                    className="w-10 h-10 sm:w-12 sm:h-12 lg:w-14 lg:h-14 bg-gradient-to-br from-green-400 to-emerald-600 rounded-full flex items-center justify-center shadow-lg flex-shrink-0"
                     animate={{ rotate: [0, 360] }}
                     transition={{
                       duration: 2,
@@ -832,7 +835,7 @@ const CoursePlayer = () => {
                     }}
                   >
                     <svg
-                      className="w-8 h-8 text-white"
+                      className="w-5 h-5 sm:w-6 sm:h-6 lg:w-8 lg:h-8 text-white"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -845,25 +848,25 @@ const CoursePlayer = () => {
                       />
                     </svg>
                   </motion.div>
-                  <div>
-                    <h3 className="font-black text-xl text-white">
+                  <div className="min-w-0 flex-1">
+                    <h3 className="font-black text-lg sm:text-xl text-white">
                       Course Completed! 🎉
                     </h3>
-                    <p className="text-green-200 font-medium">
+                    <p className="text-green-200 font-medium text-sm sm:text-base">
                       You've earned a certificate of completion
                     </p>
                   </div>
                 </div>
-                <div className="flex gap-3">
+                <div className="flex flex-col sm:flex-row gap-2 sm:gap-3 w-full sm:w-auto">
                   {!hasReviewed && (
                     <motion.button
                       onClick={() => setShowReviewModal(true)}
-                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 transition-all duration-300 shadow-lg"
+                      className="bg-gradient-to-r from-blue-600 to-purple-600 hover:from-blue-700 hover:to-purple-700 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-sm sm:text-base flex items-center justify-center gap-2 transition-all duration-300 shadow-lg"
                       whileHover={{ scale: 1.05, y: -2 }}
                       whileTap={{ scale: 0.95 }}
                     >
                       <svg
-                        className="w-5 h-5"
+                        className="w-4 h-4 sm:w-5 sm:h-5"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -875,14 +878,15 @@ const CoursePlayer = () => {
                           d="M11.049 2.927c.3-.921 1.603-.921 1.902 0l1.07 3.292a1 1 0 00.95.69h3.462c.969 0 1.371 1.24.588 1.81l-2.8 2.034a1 1 0 00-.364 1.118l1.07 3.292c.3.921-.755 1.688-1.54 1.118l-2.8-2.034a1 1 0 00-1.175 0l-2.8 2.034c-.784.57-1.838-.197-1.539-1.118l1.07-3.292a1 1 0 00-.364-1.118L2.98 8.72c-.783-.57-.38-1.81.588-1.81h3.461a1 1 0 00.951-.69l1.07-3.292z"
                         />
                       </svg>
-                      Rate Course
+                      <span className="hidden sm:inline">Rate Course</span>
+                      <span className="sm:hidden">Rate</span>
                     </motion.button>
                   )}
 
                   {hasReviewed && (
-                    <div className="bg-white/10 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 border border-white/20">
+                    <div className="bg-white/10 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-sm sm:text-base flex items-center justify-center gap-2 border border-white/20">
                       <svg
-                        className="w-5 h-5"
+                        className="w-4 h-4 sm:w-5 sm:h-5"
                         fill="none"
                         stroke="currentColor"
                         viewBox="0 0 24 24"
@@ -904,12 +908,12 @@ const CoursePlayer = () => {
                         state: { activeTab: "certificates" },
                       })
                     }
-                    className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white px-6 py-3 rounded-2xl font-bold flex items-center gap-2 transition-all duration-300 shadow-lg"
+                    className="bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-sm sm:text-base flex items-center justify-center gap-2 transition-all duration-300 shadow-lg"
                     whileHover={{ scale: 1.05, y: -2 }}
                     whileTap={{ scale: 0.95 }}
                   >
                     <svg
-                      className="w-5 h-5"
+                      className="w-4 h-4 sm:w-5 sm:h-5"
                       fill="none"
                       stroke="currentColor"
                       viewBox="0 0 24 24"
@@ -921,7 +925,8 @@ const CoursePlayer = () => {
                         d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
                       />
                     </svg>
-                    Get Certificate
+                    <span className="hidden sm:inline">Get Certificate</span>
+                    <span className="sm:hidden">Certificate</span>
                   </motion.button>
                 </div>
               </div>
@@ -934,14 +939,14 @@ const CoursePlayer = () => {
       <div className="max-w-7xl mx-auto flex flex-col lg:flex-row">
         {/* Video Player Section */}
         <motion.div
-          className="flex-1 p-6"
+          className="flex-1 p-3 sm:p-4 lg:p-6"
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.2 }}
         >
           {lectures[currentLecture] && (
             <motion.div
-              className="bg-gradient-to-br from-white/10 to-white/5 rounded-3xl overflow-hidden backdrop-blur-xl border border-white/20 shadow-2xl"
+              className="bg-gradient-to-br from-white/10 to-white/5 rounded-2xl sm:rounded-3xl overflow-hidden backdrop-blur-xl border border-white/20 shadow-2xl"
               whileHover={{ scale: 1.01 }}
               transition={{ duration: 0.3 }}
             >
@@ -951,7 +956,7 @@ const CoursePlayer = () => {
                     src={`https://www.youtube.com/embed/${getYouTubeId(
                       lectures[currentLecture].videoUrl
                     )}?enablejsapi=1&origin=${window.location.origin}`}
-                    className="w-full h-full rounded-t-3xl"
+                    className="w-full h-full rounded-t-2xl sm:rounded-t-3xl"
                     frameBorder="0"
                     allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                     allowFullScreen
@@ -959,8 +964,8 @@ const CoursePlayer = () => {
                     onLoad={handleVideoPlay}
                   />
                 ) : (
-                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900 rounded-t-3xl">
-                    <div className="text-center">
+                  <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900 rounded-t-2xl sm:rounded-t-3xl">
+                    <div className="text-center p-4">
                       <motion.div
                         animate={{ rotate: 360 }}
                         transition={{
@@ -970,7 +975,7 @@ const CoursePlayer = () => {
                         }}
                       >
                         <svg
-                          className="mx-auto h-16 w-16 text-gray-400 mb-4"
+                          className="mx-auto h-12 w-12 sm:h-16 sm:w-16 text-gray-400 mb-4"
                           fill="none"
                           stroke="currentColor"
                           viewBox="0 0 24 24"
@@ -983,7 +988,7 @@ const CoursePlayer = () => {
                           />
                         </svg>
                       </motion.div>
-                      <p className="text-gray-300 font-medium">
+                      <p className="text-gray-300 font-medium text-sm sm:text-base">
                         Invalid video URL
                       </p>
                     </div>
@@ -991,11 +996,11 @@ const CoursePlayer = () => {
                 )}
               </div>
 
-              <div className="bg-white/5 p-6 backdrop-blur-sm border-t border-white/10">
-                <h2 className="text-xl md:text-2xl font-bold text-white mb-2">
+              <div className="bg-white/5 p-4 sm:p-6 backdrop-blur-sm border-t border-white/10">
+                <h2 className="text-lg sm:text-xl md:text-2xl font-bold text-white mb-1 sm:mb-2 line-clamp-2 break-words">
                   {lectures[currentLecture].title}
                 </h2>
-                <p className="text-cyan-200 font-medium">
+                <p className="text-cyan-200 font-medium text-sm sm:text-base">
                   Lecture {currentLecture + 1} of {lectures.length}
                 </p>
               </div>
@@ -1004,7 +1009,7 @@ const CoursePlayer = () => {
 
           {/* Enhanced Navigation */}
           <motion.div
-            className="mt-6 flex flex-col sm:flex-row justify-between gap-4"
+            className="mt-4 sm:mt-6 flex flex-col sm:flex-row justify-between gap-2 sm:gap-4"
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.4 }}
@@ -1012,12 +1017,12 @@ const CoursePlayer = () => {
             <motion.button
               onClick={() => setCurrentLecture(Math.max(0, currentLecture - 1))}
               disabled={currentLecture === 0}
-              className="flex-1 sm:flex-none bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 disabled:from-gray-800 disabled:to-gray-900 text-white px-6 py-3 rounded-2xl font-bold transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg"
+              className="flex-1 sm:flex-none bg-gradient-to-r from-gray-600 to-gray-700 hover:from-gray-700 hover:to-gray-800 disabled:from-gray-800 disabled:to-gray-900 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-sm sm:text-base transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg"
               whileHover={{ scale: 1.02, x: -5 }}
               whileTap={{ scale: 0.98 }}
             >
               <svg
-                className="w-5 h-5"
+                className="w-4 h-4 sm:w-5 sm:h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -1029,17 +1034,18 @@ const CoursePlayer = () => {
                   d="M15 19l-7-7 7-7"
                 />
               </svg>
-              Previous
+              <span className="hidden sm:inline">Previous</span>
+              <span className="sm:hidden">Prev</span>
             </motion.button>
 
             <motion.button
               onClick={() => markLectureComplete(lectures[currentLecture]._id)}
-              className="flex-1 sm:flex-none bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white px-8 py-3 rounded-2xl font-bold transition-all duration-300 flex items-center justify-center gap-2 shadow-lg"
+              className="flex-1 sm:flex-none bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2 shadow-lg"
               whileHover={{ scale: 1.05, y: -2 }}
               whileTap={{ scale: 0.95 }}
             >
               <svg
-                className="w-5 h-5"
+                className="w-4 h-4 sm:w-5 sm:h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -1051,7 +1057,8 @@ const CoursePlayer = () => {
                   d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              Mark Complete
+              <span className="hidden sm:inline">Mark Complete</span>
+              <span className="sm:hidden">Complete</span>
             </motion.button>
 
             <motion.button
@@ -1061,13 +1068,14 @@ const CoursePlayer = () => {
                 )
               }
               disabled={currentLecture === lectures.length - 1}
-              className="flex-1 sm:flex-none bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 disabled:from-gray-800 disabled:to-gray-900 text-white px-6 py-3 rounded-2xl font-bold transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg"
+              className="flex-1 sm:flex-none bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 disabled:from-gray-800 disabled:to-gray-900 text-white px-4 sm:px-6 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-sm sm:text-base transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg"
               whileHover={{ scale: 1.02, x: 5 }}
               whileTap={{ scale: 0.98 }}
             >
-              Next
+              <span className="hidden sm:inline">Next</span>
+              <span className="sm:hidden">Next</span>
               <svg
-                className="w-5 h-5"
+                className="w-4 h-4 sm:w-5 sm:h-5"
                 fill="none"
                 stroke="currentColor"
                 viewBox="0 0 24 24"
@@ -1085,23 +1093,25 @@ const CoursePlayer = () => {
 
         {/* Enhanced Sidebar */}
         <motion.div
-          className="w-full lg:w-80 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border-t lg:border-l lg:border-t-0 border-white/20 p-6"
+          className="w-full lg:w-80 bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl border-t lg:border-l lg:border-t-0 border-white/20 p-3 sm:p-4 lg:p-6"
           initial={{ opacity: 0, x: 50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.3 }}
         >
-          <div className="lg:hidden mb-6">
-            <div className="space-y-3">
+          <div className="lg:hidden mb-4 sm:mb-6">
+            <div className="space-y-2 sm:space-y-3">
               {/* Course Content Toggle */}
               <motion.button
                 onClick={() => setShowSidebar(!showSidebar)}
-                className="w-full bg-white/10 hover:bg-white/20 px-6 py-4 rounded-2xl flex items-center justify-between transition-all duration-300 border border-white/20 backdrop-blur-sm"
+                className="w-full bg-white/10 hover:bg-white/20 px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl flex items-center justify-between transition-all duration-300 border border-white/20 backdrop-blur-sm"
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <span className="font-bold text-white">📚 Course Content</span>
+                <span className="font-bold text-white text-sm sm:text-base">
+                  📚 Course Content
+                </span>
                 <motion.svg
-                  className={`w-6 h-6 text-white transform transition-transform`}
+                  className={`w-5 h-5 sm:w-6 sm:h-6 text-white transform transition-transform`}
                   fill="none"
                   stroke="currentColor"
                   viewBox="0 0 24 24"
@@ -1119,7 +1129,7 @@ const CoursePlayer = () => {
               {/* Notes Button for Mobile */}
               <motion.button
                 onClick={() => setNotesOpen((prev) => !prev)}
-                className={`w-full px-6 py-4 rounded-2xl flex items-center justify-between transition-all duration-300 border text-white font-bold ${
+                className={`w-full px-4 sm:px-6 py-3 sm:py-4 rounded-xl sm:rounded-2xl flex items-center justify-between transition-all duration-300 border text-white font-bold text-sm sm:text-base ${
                   notesOpen
                     ? "bg-gradient-to-r from-red-500/20 to-rose-500/20 border-red-400/50"
                     : "bg-gradient-to-r from-blue-500/20 to-cyan-500/20 border-blue-400/50"
@@ -1127,13 +1137,13 @@ const CoursePlayer = () => {
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
               >
-                <div className="flex items-center gap-3">
-                  <span className="text-xl">📝</span>
+                <div className="flex items-center gap-2 sm:gap-3">
+                  <span className="text-lg sm:text-xl">📝</span>
                   <span>{notesOpen ? "Close Notes" : "Open Notes"}</span>
                 </div>
                 {hasNotes && !notesOpen && (
                   <motion.div
-                    className="w-3 h-3 bg-green-400 rounded-full"
+                    className="w-2.5 h-2.5 sm:w-3 sm:h-3 bg-green-400 rounded-full"
                     animate={{ scale: [1, 1.3, 1] }}
                     transition={{ duration: 2, repeat: Infinity }}
                   />
@@ -1151,14 +1161,14 @@ const CoursePlayer = () => {
                 className="lg:opacity-100 lg:h-auto"
               >
                 {/* Notes Button + Course Content Header */}
-                <div className="hidden lg:block mb-6">
-                  <div className="flex items-center justify-between mb-4">
-                    <h3 className="font-black text-xl text-white flex items-center gap-2">
+                <div className="hidden lg:block mb-4 sm:mb-6">
+                  <div className="flex items-center justify-between mb-3 sm:mb-4">
+                    <h3 className="font-black text-lg sm:text-xl text-white flex items-center gap-2">
                       📚 Course Content
                     </h3>
                     <motion.button
                       onClick={() => setNotesOpen((prev) => !prev)}
-                      className={`px-4 py-2 rounded-xl shadow-lg transition-all duration-300 flex items-center gap-2 text-sm font-bold ${
+                      className={`px-3 sm:px-4 py-1.5 sm:py-2 rounded-lg sm:rounded-xl shadow-lg transition-all duration-300 flex items-center gap-1 sm:gap-2 text-xs sm:text-sm font-bold ${
                         notesOpen
                           ? "bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white"
                           : "bg-gradient-to-r from-blue-500 to-cyan-500 hover:from-blue-600 hover:to-cyan-600 text-white"
@@ -1167,11 +1177,11 @@ const CoursePlayer = () => {
                       whileTap={{ scale: 0.95 }}
                       title={notesOpen ? "Close Notes" : "Open Notes"}
                     >
-                      <span className="text-base">📝</span>
+                      <span className="text-sm sm:text-base">📝</span>
                       <span>{notesOpen ? "Close" : "Notes"}</span>
                       {hasNotes && !notesOpen && (
                         <motion.div
-                          className="w-2 h-2 bg-green-400 rounded-full"
+                          className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-green-400 rounded-full"
                           animate={{ scale: [1, 1.3, 1] }}
                           transition={{ duration: 2, repeat: Infinity }}
                         />
@@ -1179,7 +1189,7 @@ const CoursePlayer = () => {
                     </motion.button>
                   </div>
                 </div>
-                <div className="space-y-3 max-h-96 lg:max-h-none overflow-y-auto custom-scrollbar">
+                <div className="space-y-2 sm:space-y-3 max-h-80 sm:max-h-96 lg:max-h-none overflow-y-auto custom-scrollbar">
                   {lectures.map((lecture, index) => (
                     <motion.div
                       key={lecture._id}
@@ -1187,7 +1197,7 @@ const CoursePlayer = () => {
                         setCurrentLecture(index);
                         setShowSidebar(false);
                       }}
-                      className={`p-4 rounded-2xl cursor-pointer transition-all duration-300 border ${
+                      className={`p-3 sm:p-4 rounded-xl sm:rounded-2xl cursor-pointer transition-all duration-300 border ${
                         index === currentLecture
                           ? "bg-gradient-to-r from-indigo-500/20 to-purple-500/20 border-indigo-400/50 shadow-lg"
                           : "hover:bg-white/10 border-white/10 hover:border-white/20"
@@ -1198,9 +1208,9 @@ const CoursePlayer = () => {
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.05 }}
                     >
-                      <div className="flex items-center gap-4">
+                      <div className="flex items-center gap-3 sm:gap-4">
                         <motion.div
-                          className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm shadow-lg ${
+                          className={`w-8 h-8 sm:w-10 sm:h-10 rounded-full flex items-center justify-center font-bold text-xs sm:text-sm shadow-lg flex-shrink-0 ${
                             progress.completedLectureIds?.includes(lecture._id)
                               ? "bg-gradient-to-br from-green-400 to-emerald-600 text-white"
                               : index === currentLecture
@@ -1214,8 +1224,8 @@ const CoursePlayer = () => {
                             ? "✓"
                             : index + 1}
                         </motion.div>
-                        <div className="flex-1">
-                          <span className="block font-bold text-white text-sm line-clamp-2">
+                        <div className="flex-1 min-w-0">
+                          <span className="block font-bold text-white text-xs sm:text-sm line-clamp-2 break-words">
                             {lecture.title}
                           </span>
                           {index === currentLecture && (
@@ -1228,10 +1238,10 @@ const CoursePlayer = () => {
                             </motion.span>
                           )}
                         </div>
-                        <div className="flex items-center gap-2">
+                        <div className="flex items-center gap-1 sm:gap-2 flex-shrink-0">
                           {lectureViewTracked.has(lecture._id) && (
                             <motion.div
-                              className="text-purple-400"
+                              className="text-purple-400 text-sm sm:text-base"
                               title="View tracked"
                               animate={{ scale: [1, 1.2, 1] }}
                               transition={{ duration: 2, repeat: Infinity }}
@@ -1241,7 +1251,7 @@ const CoursePlayer = () => {
                           )}
                           {index === currentLecture && (
                             <motion.div
-                              className="w-2 h-2 bg-cyan-400 rounded-full"
+                              className="w-1.5 h-1.5 sm:w-2 sm:h-2 bg-cyan-400 rounded-full"
                               animate={{
                                 scale: [1, 1.5, 1],
                                 opacity: [1, 0.5, 1],
