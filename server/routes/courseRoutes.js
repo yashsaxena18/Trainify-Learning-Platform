@@ -32,14 +32,11 @@ const isInstructor = (req, res, next) => {
   next();
 }
 
-// ✅ FIXED: View tracking routes (remove duplicates)
-router.post('/:id/view', trackCourseView); // Works for both anonymous and authenticated users
-
-// ✅ NEW: Instructor-specific routes
+// ✅ Instructor-specific routes
 router.get('/instructor/courses', protect, isInstructor, getInstructorCourses);
 router.get('/instructor/analytics', protect, isInstructor, getInstructorAnalytics);
 
-// ✅ FIXED: Course management routes
+// ✅ Course management routes
 router.post('/create', protect, isInstructor, createCourse);
 router.get('/', getAllCourses);
 router.put('/:id/manage', protect, isInstructor, updateCourse);
@@ -57,11 +54,10 @@ router.get('/progress/:courseId', protect, getCourseProgress);
 router.post('/:id/review', protect, checkStudent, addCourseReview);
 router.get('/:id/reviews', getCourseReviews);
 
-// ✅ ADD these routes
-router.post('/:id/view', trackCourseView);                    // General view tracking
-router.post('/:id/page-view', trackCoursePageView);           // Course page view
-router.post('/:id/lectures/:lectureId/view', trackCourseLectureView); // 
-
-//Lecture view
+// ✅ View tracking routes (FIXED - removed duplicate and fixed comment)
+router.post('/:id/view', trackCourseView);                           // General view tracking
+router.post('/:id/page-view', trackCoursePageView);                  // Course page view
+router.post('/:id/lectures/:lectureId/view', trackCourseLectureView); // Lecture view tracking
 router.get('/:id/analytics', protect, isInstructor, getCourseViewAnalytics); // Analytics
+
 module.exports = router;
