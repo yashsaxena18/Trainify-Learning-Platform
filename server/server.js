@@ -11,7 +11,7 @@ dotenv.config();
 // Connect to MongoDB
 connectDB();
 
-// Route files
+// Import route files
 const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const courseRoutes = require('./routes/courseRoutes');
@@ -25,31 +25,33 @@ const paymentRoutes = require('./routes/payment');
 const aiRoutes = require('./routes/ai');
 const notesRoutes = require('./routes/notes');
 
-// App setup
+// Initialize Express app
 const app = express();
 
-// Allowed origins for CORS
-const allowedOrigins = ['http://localhost:5173', 'https://trainify-learning-platform.vercel.app'];
+// -------------------- CORS Setup --------------------
+const allowedOrigins = [
+  'http://localhost:5173',
+  'https://trainify-learning-platform.vercel.app'
+];
 
-// Middleware
 app.use(cors({
   origin: function(origin, callback) {
-    if(!origin) return callback(null, true); // allow Postman, mobile apps
-    if(!allowedOrigins.includes(origin)) {
+    if (!origin) return callback(null, true); // allow Postman or mobile apps
+    if (!allowedOrigins.includes(origin)) {
       return callback(new Error("CORS policy does not allow access from this origin"), false);
     }
     return callback(null, true);
   },
   credentials: true, // allow cookies
-  methods: ["GET","POST","PUT","DELETE","OPTIONS"], // allow these HTTP methods
-  allowedHeaders: ["Content-Type","Authorization","Accept"] // allow these headers
+  methods: ["GET","POST","PUT","DELETE","OPTIONS"],
+  allowedHeaders: ["Content-Type","Authorization","Accept"]
 }));
 
-// Handle preflight requests for all routes
+// Handle preflight requests
 app.options("*", cors({
   origin: function(origin, callback) {
-    if(!origin) return callback(null, true);
-    if(!allowedOrigins.includes(origin)) {
+    if (!origin) return callback(null, true);
+    if (!allowedOrigins.includes(origin)) {
       return callback(new Error("CORS policy does not allow access from this origin"), false);
     }
     return callback(null, true);
@@ -59,35 +61,53 @@ app.options("*", cors({
   allowedHeaders: ["Content-Type","Authorization","Accept"]
 }));
 
-// Middleware to parse JSON
-app.use(express.json());
+// -------------------- Middleware --------------------
+app.use(express.json()); // parse JSON
 
-// Helper middleware for setting cookies in cross-domain
-app.use((req, res, next) => {
-  res.setHeader("Access-Control-Allow-Credentials", "true");
-  next();
-});
+// -------------------- Routes --------------------
 
-// Health check route
+// Health check
 app.get('/api/test', (req, res) => {
   res.json({ success: true, message: 'Backend is working' });
 });
 
-// API Routes
+// Auth
 app.use('/api/auth', authRoutes);
+
+// Users
 app.use('/api/users', userRoutes);
+
+// Courses
 app.use('/api/courses', courseRoutes);
+
+// Instructor
 app.use('/api/instructor', instructorRoutes);
+
+// Admin
 app.use('/api/admin', adminRoutes);
+
+// Progress
 app.use('/api/progress', progressRoutes);
+
+// Certificates
 app.use('/api/certificate', certificateRoutes);
+
+// Lectures
 app.use('/api/lectures', lectureRoutes);
+
+// Activity
 app.use('/api/activity', activityRoutes);
+
+// Payment
 app.use("/api/payment", paymentRoutes);
+
+// AI
 app.use('/api/ai', aiRoutes);
+
+// Notes
 app.use('/api/notes', notesRoutes);
 
-// Root route
+// Root
 app.get('/', (req, res) => {
   res.json({
     message: 'Welcome to Trainify API',
@@ -95,7 +115,7 @@ app.get('/', (req, res) => {
   });
 });
 
-// Start server
+// -------------------- Start Server --------------------
 const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`✅ Server is running on port ${PORT}`);

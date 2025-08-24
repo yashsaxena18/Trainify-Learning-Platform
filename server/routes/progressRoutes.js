@@ -22,21 +22,15 @@ const isInstructor = (req, res, next) => {
 
 // ✅ STUDENT PROGRESS ROUTES
 
-// Mark a specific lecture as completed
+// Static routes first
+router.get('/instructor/students', protect, isInstructor, getInstructorStudentProgress);
+
+// Dynamic routes after
 router.post('/:courseId/lectures/:lectureId/complete', protect, checkStudent, markLectureCompleted);
-
-// Get progress for a specific course
 router.get('/:courseId', protect, getCourseProgress);
-
-// Get all progress for the logged-in user (for student dashboard)
-router.get('/', protect, getAllUserProgress);
-
-// Reset progress for a specific course (for testing/admin)
 router.delete('/:courseId/reset', protect, resetCourseProgress);
 
-// ✅ INSTRUCTOR PROGRESS ROUTES
-
-// Get student progress summary for instructor's courses
-router.get('/instructor/students', protect, isInstructor, getInstructorStudentProgress);
+// User dashboard
+router.get('/', protect, getAllUserProgress);
 
 module.exports = router;
