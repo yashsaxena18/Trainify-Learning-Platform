@@ -28,13 +28,23 @@ const notesRoutes = require('./routes/notes');
 
 // App setup
 const app = express();
-
+const allowedOrigins = [
+  "https://trainify-learning-platform.vercel.app", // deployed frontend
+  "http://localhost:5173" // local dev frontend
+];
 // Middleware
 app.use(cors({
-  origin: process.env.CLIENT_URL || 'http://localhost:5173' || "https://trainify-learning-platform.vercel.app",
-  credentials: true
+  origin: function(origin, callback){
+    // allow requests with no origin like Postman
+    if(!origin) return callback(null, true);
+    if(allowedOrigins.indexOf(origin) === -1){
+      const msg = `The CORS policy for this site does not allow access from the specified Origin.`;
+      return callback(new Error(msg), false);
+    }
+    return callback(null, true);
+  },
+  credentials: true // allow cookies
 }));
-app.use(express.json());
 
 // Health check route
 app.get('/api/test', (req, res) => {
