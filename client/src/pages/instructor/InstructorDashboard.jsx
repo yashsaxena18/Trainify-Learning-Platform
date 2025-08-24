@@ -1416,94 +1416,112 @@ const ModernAddLectureModal = ({ courseId, onClose, onSuccess }) => {
 // Modern Reviews Modal
 const ModernReviewsModal = ({ course, reviews, loading, onClose }) => (
   <motion.div 
-    className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-4"
+    className="fixed inset-0 bg-black/80 backdrop-blur-sm flex items-center justify-center z-50 p-2 sm:p-4 lg:p-6"
     initial={{ opacity: 0 }}
     animate={{ opacity: 1 }}
     exit={{ opacity: 0 }}
   >
     <motion.div 
-      className="bg-gradient-to-br from-white to-gray-50 rounded-3xl p-8 w-full max-w-2xl max-h-[80vh] overflow-y-auto shadow-2xl border border-white/20"
+      className="bg-gradient-to-br from-white to-gray-50 rounded-2xl sm:rounded-3xl p-4 sm:p-6 lg:p-8 w-full max-w-sm sm:max-w-lg md:max-w-xl lg:max-w-2xl xl:max-w-3xl max-h-[85vh] sm:max-h-[80vh] lg:max-h-[75vh] overflow-y-auto shadow-2xl border border-white/20 mx-2 sm:mx-4"
       initial={{ scale: 0.8, opacity: 0, y: 50 }}
       animate={{ scale: 1, opacity: 1, y: 0 }}
       exit={{ scale: 0.8, opacity: 0, y: 50 }}
       transition={{ type: "spring", bounce: 0.4 }}
     >
-      <div className="flex justify-between items-center mb-6">
-        <h3 className="text-2xl font-black text-gray-900 flex items-center gap-3">
-          <span className="text-3xl">⭐</span>
-          Reviews for "{course.title}"
-        </h3>
+      <div className="flex justify-between items-start gap-4 mb-4 sm:mb-6">
+        <div className="flex-1 min-w-0">
+          <h3 className="text-lg sm:text-xl lg:text-2xl font-black text-gray-900 flex items-start gap-2 sm:gap-3 leading-tight">
+            <span className="text-xl sm:text-2xl lg:text-3xl flex-shrink-0">⭐</span>
+            <span className="break-words line-clamp-2">
+              Reviews for "{course.title}"
+            </span>
+          </h3>
+        </div>
         <motion.button
           onClick={onClose}
-          className="text-gray-500 hover:text-gray-700 p-2 hover:bg-gray-100 rounded-2xl transition-all duration-300"
+          className="text-gray-500 hover:text-gray-700 p-1.5 sm:p-2 hover:bg-gray-100 rounded-xl sm:rounded-2xl transition-all duration-300 flex-shrink-0"
           whileHover={{ scale: 1.1, rotate: 90 }}
           whileTap={{ scale: 0.9 }}
         >
-          <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <svg className="w-5 h-5 sm:w-6 sm:h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
           </svg>
         </motion.button>
       </div>
 
       {loading ? (
-        <div className="text-center py-12">
+        <div className="text-center py-8 sm:py-12">
           <motion.div
-            className="w-16 h-16 border-4 border-blue-200 border-t-blue-600 rounded-full mx-auto mb-4"
+            className="w-12 h-12 sm:w-16 sm:h-16 border-4 border-blue-200 border-t-blue-600 rounded-full mx-auto mb-3 sm:mb-4"
             animate={{ rotate: 360 }}
             transition={{ duration: 1, repeat: Infinity, ease: "linear" }}
           />
-          <p className="text-gray-500 font-medium">Loading reviews...</p>
+          <p className="text-gray-500 font-medium text-sm sm:text-base">Loading reviews...</p>
         </div>
       ) : reviews.length === 0 ? (
         <motion.div 
-          className="text-center py-12"
+          className="text-center py-8 sm:py-12 px-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
         >
-          <div className="text-8xl mb-6">📝</div>
-          <h4 className="text-xl font-bold text-gray-900 mb-4">No Reviews Yet</h4>
-          <p className="text-gray-500 text-lg">Students haven't reviewed this course yet.</p>
+          <div className="text-6xl sm:text-7xl lg:text-8xl mb-4 sm:mb-6">📝</div>
+          <h4 className="text-lg sm:text-xl font-bold text-gray-900 mb-3 sm:mb-4">No Reviews Yet</h4>
+          <p className="text-gray-500 text-base sm:text-lg">Students haven't reviewed this course yet.</p>
         </motion.div>
       ) : (
-        <div className="space-y-6">
-          {reviews.map((review, index) => (
-            <motion.div
-              key={review._id || index}
-              className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-2xl p-6"
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: index * 0.1 }}
-              whileHover={{ scale: 1.02 }}
-            >
-              <div className="flex items-start gap-4">
-                <div className="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center">
-                  <span className="text-white font-bold">
-                    {review.user?.name?.charAt(0).toUpperCase() || "?"}
-                  </span>
-                </div>
-                <div className="flex-1">
-                  <div className="flex items-center gap-3 mb-2">
-                    <span className="font-bold text-gray-900">
-                      {review.user?.name || "Anonymous"}
+        <div className="space-y-4 sm:space-y-6">
+          <div className="mb-3 sm:mb-4">
+            <p className="text-sm text-gray-600 font-medium">
+              {reviews.length} review{reviews.length !== 1 ? 's' : ''} • Average rating: {' '}
+              <span className="text-yellow-500 font-bold">
+                {(reviews.reduce((sum, r) => sum + (r.rating || 0), 0) / reviews.length).toFixed(1)} ⭐
+              </span>
+            </p>
+          </div>
+          
+          <div className="max-h-[50vh] sm:max-h-[45vh] lg:max-h-[50vh] overflow-y-auto space-y-4 sm:space-y-6 pr-2 custom-scrollbar">
+            {reviews.map((review, index) => (
+              <motion.div
+                key={review._id || index}
+                className="bg-gradient-to-r from-blue-50 to-purple-50 border border-blue-200 rounded-xl sm:rounded-2xl p-4 sm:p-6"
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.1 }}
+                whileHover={{ scale: 1.01 }}
+              >
+                <div className="flex items-start gap-3 sm:gap-4">
+                  <div className="w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center flex-shrink-0">
+                    <span className="text-white font-bold text-sm sm:text-base">
+                      {review.user?.name?.charAt(0).toUpperCase() || "?"}
                     </span>
-                    <div className="flex text-yellow-400">
-                      {"⭐".repeat(review.rating || 0)}
-                    </div>
                   </div>
-                  <p className="text-gray-700 leading-relaxed">
-                    {review.comment}
-                  </p>
-                  <p className="text-gray-500 text-sm mt-2">
-                    {new Date(review.createdAt).toLocaleDateString()}
-                  </p>
+                  <div className="flex-1 min-w-0">
+                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3 mb-2">
+                      <span className="font-bold text-gray-900 text-sm sm:text-base truncate">
+                        {review.user?.name || "Anonymous"}
+                      </span>
+                      <div className="flex text-yellow-400 text-sm sm:text-base">
+                        {"⭐".repeat(review.rating || 0)}
+                      </div>
+                    </div>
+                    <p className="text-gray-700 leading-relaxed text-sm sm:text-base break-words">
+                      {review.comment}
+                    </p>
+                    <p className="text-gray-500 text-xs sm:text-sm mt-2">
+                      {new Date(review.createdAt).toLocaleDateString('en-US', {
+                        year: 'numeric',
+                        month: 'short',
+                        day: 'numeric'
+                      })}
+                    </p>
+                  </div>
                 </div>
-              </div>
-            </motion.div>
-          ))}
+              </motion.div>
+            ))}
+          </div>
         </div>
       )}
     </motion.div>
   </motion.div>
 );
-
 export default InstructorDashboard;
