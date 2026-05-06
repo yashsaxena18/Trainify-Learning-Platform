@@ -91,7 +91,7 @@ const InstructorCourseManager = () => {
   const deleteLecture = async (lectureId) => {
     if (!window.confirm("Delete this lecture?")) return;
     try {
-      await API.delete(`/courses/${courseId}/lectures/${lectureId}`);
+      await API.delete(`/lectures/course/${courseId}/lecture/${lectureId}`);
       toast.success("Lecture deleted");
       fetchCourseData();
     } catch {
@@ -102,7 +102,7 @@ const InstructorCourseManager = () => {
   const deleteCourse = async () => {
     if (!window.confirm("Delete the entire course?")) return;
     try {
-      await API.delete(`/courses/${courseId}`);
+      await API.delete(`/courses/${courseId}/manage`);
       toast.success("Course deleted");
       navigate("/instructor/dashboard");
     } catch {
