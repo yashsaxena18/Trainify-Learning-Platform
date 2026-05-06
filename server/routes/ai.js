@@ -7,8 +7,8 @@ const router = express.Router();
 // Configure your Gemini API key (get from Google AI Studio)
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
-// ✅ Updated to latest supported model (use gemini-1.5-flash or gemini-1.5-pro)
-const GEMINI_MODEL = 'gemini-1.5-flash';
+// ✅ Updated to latest supported model
+const GEMINI_MODEL = 'gemini-2.5-flash';
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
 // Rate limiting helper
