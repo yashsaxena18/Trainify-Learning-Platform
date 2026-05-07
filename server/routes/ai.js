@@ -3,83 +3,134 @@
 const express = require('express');
 const router = express.Router();
 
-// Configure your Gemini API key (get from Google AI Studio)
+// ✅ API Keys from environment
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
+const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
-// ✅ Primary and fallback models for reliability
-const PRIMARY_MODEL = 'gemini-2.0-flash-lite';
-const FALLBACK_MODEL = 'gemini-flash-latest';
+// Model configuration
+const GEMINI_MODEL = 'gemini-flash-latest';
+const GROQ_MODEL = 'llama-3.3-70b-versatile';
 const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
+const GROQ_BASE_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
 // Rate limiting helper
 const userRequests = new Map();
-const RATE_LIMIT = 50; // requests per hour per user
-const RATE_WINDOW = 60 * 60 * 1000; // 1 hour
+const RATE_LIMIT = 50;
+const RATE_WINDOW = 60 * 60 * 1000;
 
 const checkRateLimit = (userId) => {
   const now = Date.now();
   const userHistory = userRequests.get(userId) || [];
-
-  // Remove old requests outside the window
   const recentRequests = userHistory.filter(time => now - time < RATE_WINDOW);
-
-  if (recentRequests.length >= RATE_LIMIT) {
-    return false;
-  }
-
+  if (recentRequests.length >= RATE_LIMIT) return false;
   recentRequests.push(now);
   userRequests.set(userId, recentRequests);
   return true;
 };
 
-// Helper: call a specific Gemini model
-async function callModel(model, prompt) {
-  const url = `${GEMINI_BASE_URL}/${model}:generateContent?key=${GEMINI_API_KEY}`;
+// ─── Provider 1: Groq (FREE, fast, reliable) ───
+async function callGroq(prompt) {
+  if (!GROQ_API_KEY) throw new Error('Groq API key not configured');
   
-  const response = await fetch(url, {
-    method: 'POST',
-    headers: { 'Content-Type': 'application/json' },
-    body: JSON.stringify({
-      contents: [{ parts: [{ text: prompt }] }],
-      generationConfig: {
-        temperature: 0.7,
-        topK: 40,
-        topP: 0.95,
-        maxOutputTokens: 2048,
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 25000);
+
+  try {
+    const response = await fetch(GROQ_BASE_URL, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${GROQ_API_KEY}`
       },
-    })
-  });
+      signal: controller.signal,
+      body: JSON.stringify({
+        model: GROQ_MODEL,
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0.7,
+        max_tokens: 2048,
+      })
+    });
 
-  if (!response.ok) {
-    const errorData = await response.json().catch(() => ({}));
-    const errorMsg = errorData.error?.message || `HTTP ${response.status}`;
-    throw new Error(errorMsg);
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error?.message || `Groq HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    const text = data?.choices?.[0]?.message?.content;
+    if (!text) throw new Error('Empty response from Groq');
+    return text;
+  } finally {
+    clearTimeout(timeout);
   }
-
-  const data = await response.json();
-  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
-  if (!text) throw new Error('Empty response from model');
-  return text;
 }
 
-// ✅ Main function: tries primary model, falls back to secondary
-async function callGeminiAPI(prompt) {
-  // Try primary model first
+// ─── Provider 2: Gemini (FREE Google AI) ───
+async function callGemini(prompt) {
+  if (!GEMINI_API_KEY) throw new Error('Gemini API key not configured');
+
+  const controller = new AbortController();
+  const timeout = setTimeout(() => controller.abort(), 25000);
+
   try {
-    console.log(`[AI] Trying primary model: ${PRIMARY_MODEL}`);
-    return await callModel(PRIMARY_MODEL, prompt);
-  } catch (primaryError) {
-    console.warn(`[AI] Primary model (${PRIMARY_MODEL}) failed: ${primaryError.message}`);
+    const url = `${GEMINI_BASE_URL}/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+    const response = await fetch(url, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      signal: controller.signal,
+      body: JSON.stringify({
+        contents: [{ parts: [{ text: prompt }] }],
+        generationConfig: {
+          temperature: 0.7,
+          topK: 40,
+          topP: 0.95,
+          maxOutputTokens: 2048,
+        },
+      })
+    });
+
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      throw new Error(errorData.error?.message || `Gemini HTTP ${response.status}`);
+    }
+
+    const data = await response.json();
+    const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) throw new Error('Empty response from Gemini');
+    return text;
+  } finally {
+    clearTimeout(timeout);
+  }
+}
+
+// ✅ Main AI function: tries Groq first (faster), falls back to Gemini
+async function callAI(prompt) {
+  const errors = [];
+
+  // Try Groq first (faster and more reliable on free tier)
+  if (GROQ_API_KEY) {
+    try {
+      console.log('[AI] Trying Groq...');
+      return await callGroq(prompt);
+    } catch (err) {
+      console.warn(`[AI] Groq failed: ${err.message}`);
+      errors.push(`Groq: ${err.message}`);
+    }
   }
 
-  // Fallback to secondary model
-  try {
-    console.log(`[AI] Trying fallback model: ${FALLBACK_MODEL}`);
-    return await callModel(FALLBACK_MODEL, prompt);
-  } catch (fallbackError) {
-    console.error(`[AI] Fallback model (${FALLBACK_MODEL}) also failed: ${fallbackError.message}`);
-    throw new Error('AI service temporarily unavailable. Please try again in a few minutes.');
+  // Fallback to Gemini
+  if (GEMINI_API_KEY) {
+    try {
+      console.log('[AI] Trying Gemini...');
+      return await callGemini(prompt);
+    } catch (err) {
+      console.warn(`[AI] Gemini failed: ${err.message}`);
+      errors.push(`Gemini: ${err.message}`);
+    }
   }
+
+  console.error('[AI] All providers failed:', errors);
+  throw new Error('AI service temporarily unavailable. Please try again in a few minutes.');
 }
 
 // 1. CHATBOT TUTOR ENDPOINT
@@ -111,7 +162,7 @@ Instructions for your response:
 
 Response:`;
 
-    const aiResponse = await callGeminiAPI(prompt);
+    const aiResponse = await callAI(prompt);
 
     res.json({ success: true, response: aiResponse, timestamp: new Date().toISOString() });
   } catch (error) {
@@ -152,7 +203,7 @@ Instructions for your response:
 
 Ensure your explanation is thorough, educational, and directly addresses their specific doubt.`;
 
-    const aiResponse = await callGeminiAPI(prompt);
+    const aiResponse = await callAI(prompt);
     
     res.json({
       success: true,
@@ -218,7 +269,7 @@ Generate questions in this EXACT JSON format ONLY (do not include markdown tags 
 
 Ensure the questions test deep understanding, not just memorization. Include detailed explanations for the answers so students learn from their mistakes.`;
 
-    const aiResponse = await callGeminiAPI(prompt);
+    const aiResponse = await callAI(prompt);
     
     // Try to parse JSON response
     try {
@@ -295,7 +346,7 @@ Respond in this JSON format:
   "improvements": "Consider also mentioning..."
 }`;
 
-    const aiResponse = await callGeminiAPI(prompt);
+    const aiResponse = await callAI(prompt);
     
     try {
       const cleanResponse = aiResponse.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
@@ -326,21 +377,30 @@ Respond in this JSON format:
 
 // Health check endpoint
 router.get('/health', async (req, res) => {
-  let apiKeyStatus = 'missing';
+  const status = { groq: 'not configured', gemini: 'not configured' };
+  
+  if (GROQ_API_KEY) {
+    try {
+      await callGroq('test');
+      status.groq = 'working';
+    } catch (e) {
+      status.groq = `error: ${e.message.substring(0, 50)}`;
+    }
+  }
+  
   if (GEMINI_API_KEY) {
     try {
-      await callModel(FALLBACK_MODEL, 'test');
-      apiKeyStatus = 'working';
+      await callGemini('test');
+      status.gemini = 'working';
     } catch (e) {
-      apiKeyStatus = `error: ${e.message}`;
+      status.gemini = `error: ${e.message.substring(0, 50)}`;
     }
   }
   
   res.json({
     success: true,
     message: 'AI service is running',
-    apiKeyStatus,
-    models: { primary: PRIMARY_MODEL, fallback: FALLBACK_MODEL },
+    providers: status,
     features: ['chatbot', 'doubt-solver', 'quiz-generator', 'answer-evaluation']
   });
 });
