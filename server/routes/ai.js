@@ -7,8 +7,8 @@ const router = express.Router();
 // Configure your Gemini API key (get from Google AI Studio)
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
-// ✅ Updated to latest supported model
-const GEMINI_MODEL = 'gemini-2.5-flash';
+// ✅ Updated to most stable and available latest flash model
+const GEMINI_MODEL = 'gemini-flash-latest';
 const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
 
 // Rate limiting helper
@@ -32,29 +32,33 @@ const checkRateLimit = (userId) => {
   return true;
 };
 
-// Helper function to call Gemini API
+// Helper function to call Gemini API using native fetch
 async function callGeminiAPI(prompt) {
   try {
-    const response = await axios.post(
-      `${GEMINI_URL}?key=${GEMINI_API_KEY}`,
-      {
+    const response = await fetch(`${GEMINI_URL}?key=${GEMINI_API_KEY}`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
         contents: [{ parts: [{ text: prompt }] }],
         generationConfig: {
           temperature: 0.7,
           topK: 40,
           topP: 0.95,
-          maxOutputTokens: 1024,
+          maxOutputTokens: 2048,
         },
-      },
-      {
-        headers: { 'Content-Type': 'application/json' },
-      }
-    );
+      })
+    });
 
-    // ✅ Updated response parsing for Gemini 1.5
-    return response.data?.candidates?.[0]?.content?.parts?.[0]?.text || "No response";
+    if (!response.ok) {
+      const errorData = await response.json().catch(() => ({}));
+      console.error('Gemini API Error Response:', errorData);
+      throw new Error(errorData.error?.message || 'Failed to fetch from Gemini');
+    }
+
+    const data = await response.json();
+    return data?.candidates?.[0]?.content?.parts?.[0]?.text || "No response";
   } catch (error) {
-    console.error('Gemini API Error:', error.response?.data || error.message);
+    console.error('Gemini API Error:', error.message);
     throw new Error('AI service temporarily unavailable');
   }
 }
@@ -68,17 +72,19 @@ router.post('/chatbot', async (req, res) => {
       return res.status(429).json({ success: false, error: 'Rate limit exceeded. Please try again later.' });
     }
 
-    const prompt = `You are an AI tutor for Trainfy, an educational platform. Help students learn programming, web development, and coding concepts.
+    const prompt = `You are a highly knowledgeable, patient, and expert AI tutor for Trainfy, an educational platform.
+Your primary focus is to EXPLAIN concepts in-depth and resolve student DOUBTS effectively.
 
 Context: ${context || 'General programming help'}
-Student Question: ${message}
+Student Question/Doubt: ${message}
 
-Provide a helpful, encouraging response that:
-- Explains concepts clearly
-- Uses examples when helpful
-- Encourages learning
-- Stays focused on educational content
-- Keeps responses concise but informative
+Instructions for your response:
+1. Deeply analyze what the student is asking or struggling with.
+2. Provide a clear, step-by-step explanation to resolve their doubt.
+3. Use simple, beginner-friendly language and analogies if necessary.
+4. Include practical, relevant code examples to demonstrate the concept.
+5. If they share an error or bug, explain WHY it happens before giving the solution.
+6. Keep the tone encouraging, educational, and focused on building their understanding.
 
 Response:`;
 
@@ -103,24 +109,24 @@ router.post('/doubt-solver', async (req, res) => {
       });
     }
 
-    const prompt = `You are a coding doubt solver for Trainfy students. Analyze the following code issue and provide a clear solution.
+    const prompt = `You are an expert coding doubt solver for Trainfy students. A student is facing an issue and needs your help to understand and fix it.
 
 Programming Language: ${language || 'JavaScript'}
 ${errorMessage ? `Error Message: ${errorMessage}` : ''}
 ${description ? `Problem Description: ${description}` : ''}
 
-Code:
+Code provided by student:
 \`\`\`${language || 'javascript'}
 ${code}
 \`\`\`
 
-Please provide:
-1. **Problem Explanation**: What's causing the issue?
-2. **Solution**: How to fix it step-by-step
-3. **Corrected Code**: Show the fixed version
-4. **Learning Tip**: Help them avoid this in future
+Instructions for your response:
+1. **Root Cause Analysis**: First, explain clearly what is causing the error or issue in their code. Why did this happen?
+2. **Step-by-Step Solution**: Explain how to fix it conceptually before showing the final code.
+3. **Corrected Code**: Provide the corrected version of their code.
+4. **Learning Takeaway**: Give a brief tip to help them avoid this specific mistake or doubt in the future.
 
-Keep your explanation beginner-friendly and educational.`;
+Ensure your explanation is thorough, educational, and directly addresses their specific doubt.`;
 
     const aiResponse = await callGeminiAPI(prompt);
     
@@ -150,17 +156,17 @@ router.post('/generate-quiz', async (req, res) => {
       });
     }
 
-    const prompt = `Create an interactive quiz for Trainfy students on the following topic:
+    const prompt = `Create an engaging and educational interactive quiz for Trainfy students on the following topic:
 
 Topic: ${topic}
 Difficulty: ${difficulty || 'intermediate'}
 Number of Questions: ${questionCount || 5}
 
-Generate questions in this EXACT JSON format:
+Generate questions in this EXACT JSON format ONLY (do not include markdown tags like \`\`\`json):
 {
   "quiz": {
-    "title": "${topic} Quiz",
-    "description": "Test your knowledge on ${topic}",
+    "title": "${topic} Mastery Quiz",
+    "description": "Test and reinforce your understanding of ${topic}",
     "questions": [
       {
         "id": 1,
@@ -168,7 +174,7 @@ Generate questions in this EXACT JSON format:
         "question": "Question text here?",
         "options": ["Option A", "Option B", "Option C", "Option D"],
         "correct_answer": 0,
-        "explanation": "Why this answer is correct"
+        "explanation": "Provide a detailed explanation of WHY this answer is correct and why the others are wrong."
       },
       {
         "id": 2,
@@ -181,18 +187,18 @@ Generate questions in this EXACT JSON format:
   }
 }
 
-Mix multiple choice and short answer questions. Make questions practical and test real understanding, not just memorization.`;
+Ensure the questions test deep understanding, not just memorization. Include detailed explanations for the answers so students learn from their mistakes.`;
 
     const aiResponse = await callGeminiAPI(prompt);
     
     // Try to parse JSON response
     try {
-      const cleanResponse = aiResponse.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+      const cleanResponse = aiResponse.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       const quizData = JSON.parse(cleanResponse);
       
       res.json({
         success: true,
-        quiz: quizData.quiz,
+        quiz: quizData.quiz || quizData, // Use fallback if top-level 'quiz' object is missing
         timestamp: new Date().toISOString()
       });
     } catch (parseError) {
