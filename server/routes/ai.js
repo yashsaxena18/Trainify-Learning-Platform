@@ -1,15 +1,15 @@
 
 // server/routes/ai.js - AI Features Backend Implementation
 const express = require('express');
-const axios = require('axios');
 const router = express.Router();
 
 // Configure your Gemini API key (get from Google AI Studio)
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
 
-// ✅ Updated to most stable and available latest flash model
-const GEMINI_MODEL = 'gemini-flash-latest';
-const GEMINI_URL = `https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent`;
+// ✅ Primary and fallback models for reliability
+const PRIMARY_MODEL = 'gemini-2.0-flash-lite';
+const FALLBACK_MODEL = 'gemini-flash-latest';
+const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
 
 // Rate limiting helper
 const userRequests = new Map();
@@ -32,34 +32,53 @@ const checkRateLimit = (userId) => {
   return true;
 };
 
-// Helper function to call Gemini API using native fetch
+// Helper: call a specific Gemini model
+async function callModel(model, prompt) {
+  const url = `${GEMINI_BASE_URL}/${model}:generateContent?key=${GEMINI_API_KEY}`;
+  
+  const response = await fetch(url, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      contents: [{ parts: [{ text: prompt }] }],
+      generationConfig: {
+        temperature: 0.7,
+        topK: 40,
+        topP: 0.95,
+        maxOutputTokens: 2048,
+      },
+    })
+  });
+
+  if (!response.ok) {
+    const errorData = await response.json().catch(() => ({}));
+    const errorMsg = errorData.error?.message || `HTTP ${response.status}`;
+    throw new Error(errorMsg);
+  }
+
+  const data = await response.json();
+  const text = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+  if (!text) throw new Error('Empty response from model');
+  return text;
+}
+
+// ✅ Main function: tries primary model, falls back to secondary
 async function callGeminiAPI(prompt) {
+  // Try primary model first
   try {
-    const response = await fetch(`${GEMINI_URL}?key=${GEMINI_API_KEY}`, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 2048,
-        },
-      })
-    });
+    console.log(`[AI] Trying primary model: ${PRIMARY_MODEL}`);
+    return await callModel(PRIMARY_MODEL, prompt);
+  } catch (primaryError) {
+    console.warn(`[AI] Primary model (${PRIMARY_MODEL}) failed: ${primaryError.message}`);
+  }
 
-    if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      console.error('Gemini API Error Response:', errorData);
-      throw new Error(errorData.error?.message || 'Failed to fetch from Gemini');
-    }
-
-    const data = await response.json();
-    return data?.candidates?.[0]?.content?.parts?.[0]?.text || "No response";
-  } catch (error) {
-    console.error('Gemini API Error:', error.message);
-    throw new Error('AI service temporarily unavailable');
+  // Fallback to secondary model
+  try {
+    console.log(`[AI] Trying fallback model: ${FALLBACK_MODEL}`);
+    return await callModel(FALLBACK_MODEL, prompt);
+  } catch (fallbackError) {
+    console.error(`[AI] Fallback model (${FALLBACK_MODEL}) also failed: ${fallbackError.message}`);
+    throw new Error('AI service temporarily unavailable. Please try again in a few minutes.');
   }
 }
 
@@ -67,6 +86,10 @@ async function callGeminiAPI(prompt) {
 router.post('/chatbot', async (req, res) => {
   try {
     const { message, userId, context } = req.body;
+
+    if (!message || !message.trim()) {
+      return res.status(400).json({ success: false, error: 'Message is required' });
+    }
 
     if (!checkRateLimit(userId)) {
       return res.status(429).json({ success: false, error: 'Rate limit exceeded. Please try again later.' });
@@ -92,6 +115,7 @@ Response:`;
 
     res.json({ success: true, response: aiResponse, timestamp: new Date().toISOString() });
   } catch (error) {
+    console.error('[AI Chatbot Error]:', error.message);
     res.status(500).json({ success: false, error: error.message });
   }
 });
@@ -137,6 +161,7 @@ Ensure your explanation is thorough, educational, and directly addresses their s
     });
 
   } catch (error) {
+    console.error('[AI Doubt Solver Error]:', error.message);
     res.status(500).json({
       success: false,
       error: error.message
@@ -149,6 +174,10 @@ router.post('/generate-quiz', async (req, res) => {
   try {
     const { topic, difficulty, questionCount, userId } = req.body;
     
+    if (!topic || !topic.trim()) {
+      return res.status(400).json({ success: false, error: 'Topic is required' });
+    }
+
     if (!checkRateLimit(userId)) {
       return res.status(429).json({
         success: false,
@@ -198,7 +227,7 @@ Ensure the questions test deep understanding, not just memorization. Include det
       
       res.json({
         success: true,
-        quiz: quizData.quiz || quizData, // Use fallback if top-level 'quiz' object is missing
+        quiz: quizData.quiz || quizData,
         timestamp: new Date().toISOString()
       });
     } catch (parseError) {
@@ -214,6 +243,7 @@ Ensure the questions test deep understanding, not just memorization. Include det
     }
 
   } catch (error) {
+    console.error('[AI Quiz Generator Error]:', error.message);
     res.status(500).json({
       success: false,
       error: error.message
@@ -268,7 +298,7 @@ Respond in this JSON format:
     const aiResponse = await callGeminiAPI(prompt);
     
     try {
-      const cleanResponse = aiResponse.replace(/```json\n?/g, '').replace(/```\n?/g, '');
+      const cleanResponse = aiResponse.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
       const evaluation = JSON.parse(cleanResponse);
       
       res.json({
@@ -286,6 +316,7 @@ Respond in this JSON format:
     }
 
   } catch (error) {
+    console.error('[AI Evaluate Error]:', error.message);
     res.status(500).json({
       success: false,
       error: error.message
@@ -294,10 +325,22 @@ Respond in this JSON format:
 });
 
 // Health check endpoint
-router.get('/health', (req, res) => {
+router.get('/health', async (req, res) => {
+  let apiKeyStatus = 'missing';
+  if (GEMINI_API_KEY) {
+    try {
+      await callModel(FALLBACK_MODEL, 'test');
+      apiKeyStatus = 'working';
+    } catch (e) {
+      apiKeyStatus = `error: ${e.message}`;
+    }
+  }
+  
   res.json({
     success: true,
     message: 'AI service is running',
+    apiKeyStatus,
+    models: { primary: PRIMARY_MODEL, fallback: FALLBACK_MODEL },
     features: ['chatbot', 'doubt-solver', 'quiz-generator', 'answer-evaluation']
   });
 });

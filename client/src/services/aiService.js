@@ -10,11 +10,12 @@ class AIService {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${localStorage.getItem('authToken')}` // If you have auth
         },
-        credentials: 'include' // ✅ important for cross-domain cookies
+        credentials: 'include',
+        body: JSON.stringify(data) // ✅ FIXED: was missing — data was never sent to server!
       });
 
       if (!response.ok) {
-        const errorData = await response.json();
+        const errorData = await response.json().catch(() => ({ error: 'Network error occurred' }));
         throw new Error(errorData.error || 'Network error occurred');
       }
 
@@ -43,7 +44,7 @@ class AIService {
 
   async healthCheck() {
     try {
-      const response = await fetch(`${API_BASE_URL}/api/ai/health`, { credentials: 'include' });
+      const response = await fetch(`${API_BASE_URL}/ai/health`, { credentials: 'include' });
       return await response.json();
     } catch (error) {
       console.error('Health check failed:', error);

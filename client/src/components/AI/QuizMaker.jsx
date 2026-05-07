@@ -1,81 +1,5 @@
 import React, { useState } from 'react';
-
-// Updated aiService to use Gemini API
-const aiService = {
-  generateQuiz: async ({ topic, userId }) => {
-    // Replace with your actual Gemini API key
-    const API_KEY = import.meta.env.VITE_GEMINI_API_KEY;
-    
-    const prompt = `Generate exactly 5 multiple choice questions about "${topic}". 
-    
-    Format the response as a valid JSON object with this exact structure:
-    {
-      "questions": [
-        {
-          "question": "Question text here",
-          "options": ["Option A", "Option B", "Option C", "Option D"],
-          "correctAnswer": 0,
-          "explanation": "Detailed explanation of why this answer is correct and why other options are wrong"
-        }
-      ]
-    }
-    
-    Requirements:
-    - Each question should have exactly 4 options
-    - correctAnswer should be the index (0-3) of the correct option
-    - Explanations should be educational and detailed
-    - Questions should test understanding, not just memorization
-    - Make questions relevant and practical for learning ${topic}`;
-
-    const GEMINI_MODEL = 'gemini-1.5-flash';
-
-    try {
-      const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/${GEMINI_MODEL}:generateContent?key=${API_KEY}`, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          contents: [{
-            parts: [{
-              text: prompt
-            }]
-          }]
-        })
-      });
-
-      if (!response.ok) {
-        throw new Error(`API Error: ${response.status} - Please check your API key`);
-      }
-
-      const data = await response.json();
-      const generatedText = data.candidates[0].content.parts[0].text;
-      
-      // Extract JSON from the response
-      const jsonMatch = generatedText.match(/\{[\s\S]*\}/);
-      if (!jsonMatch) {
-        throw new Error('Invalid response format from API');
-      }
-
-      const quizData = JSON.parse(jsonMatch[0]);
-      
-      if (!quizData.questions || !Array.isArray(quizData.questions)) {
-        throw new Error('Invalid quiz data structure');
-      }
-
-      return {
-        success: true,
-        quiz: {
-          title: `${topic} Quiz`,
-          questions: quizData.questions
-        }
-      };
-    } catch (error) {
-      console.error('Gemini API Error:', error);
-      throw new Error(error.message || 'Failed to generate quiz');
-    }
-  }
-};
+import { aiService } from '../../services/aiService';
 
 const QuizMaker = ({ userId }) => {
   const [topic, setTopic] = useState('');
@@ -136,7 +60,8 @@ const QuizMaker = ({ userId }) => {
   const calculateScore = () => {
     if (!quiz || !showResults) return 0;
     return quiz.questions.reduce((score, question, index) => {
-      return score + (answers[index] === question.correctAnswer ? 1 : 0);
+      const correctIdx = question.correctAnswer ?? question.correct_answer;
+      return score + (answers[index] === correctIdx ? 1 : 0);
     }, 0);
   };
 
@@ -280,9 +205,10 @@ const QuizMaker = ({ userId }) => {
             {/* Questions Container */}
             <div className="grid gap-8">
               {quiz.questions?.map((q, i) => {
+                const correctIdx = q.correctAnswer ?? q.correct_answer;
                 const isAnswered = answers[i] !== undefined;
-                const isCorrect = showResults && isAnswered && answers[i] === q.correctAnswer;
-                const isWrong = showResults && isAnswered && answers[i] !== q.correctAnswer;
+                const isCorrect = showResults && isAnswered && answers[i] === correctIdx;
+                const isWrong = showResults && isAnswered && answers[i] !== correctIdx;
                 
                 return (
                   <div key={i} className="bg-gray-800 rounded-3xl shadow-xl border border-gray-700 overflow-hidden">
@@ -363,7 +289,7 @@ const QuizMaker = ({ userId }) => {
                         <div className="grid gap-4">
                           {q.options.map((opt, idx) => {
                             const isSelected = answers[i] === idx;
-                            const isCorrectOption = idx === q.correctAnswer;
+                            const isCorrectOption = idx === correctIdx;
                             const optionLetter = String.fromCharCode(65 + idx); // A, B, C, D
                             
                             let optionStyle = '';
