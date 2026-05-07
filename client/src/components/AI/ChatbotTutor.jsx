@@ -4,11 +4,12 @@ import { aiService } from '../../services/aiService';
 
 const ChatbotTutor = ({ userId }) => {
   const [messages, setMessages] = useState([
-    { type: 'ai', content: "👋 Hi! I'm your AI tutor.", timestamp: new Date().toISOString() }
+    { type: 'ai', content: "Hey there! 👋 I'm your AI tutor — ask me anything about coding, concepts, or debugging.", timestamp: new Date().toISOString() }
   ]);
   const [inputMessage, setInputMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
+  const inputRef = useRef(null);
 
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
@@ -29,110 +30,99 @@ const ChatbotTutor = ({ userId }) => {
         setMessages(prev => [...prev, { type: 'ai', content: response.response, timestamp: response.timestamp }]);
       }
     } catch (error) {
-      setMessages(prev => [...prev, { type: 'ai', content: `❌ Error: ${error.message}`, timestamp: new Date().toISOString() }]);
+      setMessages(prev => [...prev, { type: 'ai', content: `Something went wrong: ${error.message}`, timestamp: new Date().toISOString(), isError: true }]);
     } finally {
       setIsLoading(false);
+      inputRef.current?.focus();
     }
   };
 
-  return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900">
-      {/* Header */}
-      <div className="sticky top-0 z-10 backdrop-blur-xl bg-white/5 border-b border-white/10 shadow-xl">
-        <div className="flex items-center gap-4 p-4 md:p-6">
-          <div className="w-12 h-12 bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 rounded-2xl flex items-center justify-center shadow-lg animate-pulse">
-            <span className="text-white font-bold text-lg">🤖</span>
-          </div>
-          <div>
-            <h2 className="text-lg md:text-xl font-bold text-white">AI Tutor</h2>
-            <p className="text-sm text-white/60">Ask me anything about coding!</p>
-          </div>
-        </div>
-      </div>
+  const formatTime = (ts) => {
+    return new Date(ts).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+  };
 
-      {/* Messages Container */}
-      <div className="flex-1 p-4 md:p-6 overflow-y-auto space-y-4 md:space-y-6">
-        <div className="max-w-4xl mx-auto space-y-4 md:space-y-6">
+  return (
+    <div className="flex flex-col h-[calc(100vh-57px)]">
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto px-4 py-6">
+        <div className="max-w-3xl mx-auto space-y-5">
           {messages.map((msg, i) => (
-            <div key={i} className={`flex ${msg.type === 'user' ? 'justify-end' : 'justify-start'} animate-fade-in`}>
-              <div className={`max-w-[85%] sm:max-w-[75%] md:max-w-[65%] lg:max-w-[55%] px-4 py-3 rounded-2xl shadow-lg transform transition-all duration-300 hover:scale-[1.02] ${
-                msg.type === 'user' 
-                  ? 'bg-gradient-to-r from-blue-500 to-purple-600 text-white rounded-br-md' 
-                  : 'bg-gradient-to-r from-gray-800 to-gray-700 text-gray-100 border border-white/10 rounded-bl-md backdrop-blur-sm'
+            <div
+              key={i}
+              className={`flex gap-3 ${msg.type === 'user' ? 'flex-row-reverse' : ''}`}
+              style={{ animation: 'fadeUp 0.3s ease-out' }}
+            >
+              {/* Avatar */}
+              <div className={`w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center text-xs font-bold ${
+                msg.type === 'user'
+                  ? 'bg-violet-600 text-white'
+                  : 'bg-white/[0.08] text-white/60 border border-white/[0.08]'
               }`}>
-                <p className="text-sm md:text-base leading-relaxed whitespace-pre-wrap">{msg.content}</p>
-                <p className={`text-xs mt-2 ${msg.type === 'user' ? 'text-white/70' : 'text-white/50'}`}>
-                  {new Date(msg.timestamp).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
-                </p>
+                {msg.type === 'user' ? 'Y' : '✦'}
+              </div>
+
+              {/* Bubble */}
+              <div className={`max-w-[80%] ${msg.type === 'user' ? 'text-right' : ''}`}>
+                <div className={`inline-block px-4 py-3 rounded-2xl text-[14px] leading-relaxed ${
+                  msg.type === 'user'
+                    ? 'bg-violet-600 text-white rounded-br-md'
+                    : msg.isError
+                      ? 'bg-red-500/10 text-red-300 border border-red-500/20 rounded-bl-md'
+                      : 'bg-white/[0.05] text-white/85 border border-white/[0.06] rounded-bl-md'
+                }`}>
+                  <p className="whitespace-pre-wrap">{msg.content}</p>
+                </div>
+                <p className="text-[11px] text-white/20 mt-1.5 px-1">{formatTime(msg.timestamp)}</p>
               </div>
             </div>
           ))}
-          
+
+          {/* Typing indicator */}
           {isLoading && (
-            <div className="flex justify-start animate-fade-in">
-              <div className="bg-gradient-to-r from-gray-800 to-gray-700 border border-white/10 px-4 py-3 rounded-2xl rounded-bl-md shadow-lg backdrop-blur-sm">
-                <div className="flex items-center gap-3">
-                  <div className="flex space-x-1">
-                    <div className="w-2 h-2 bg-blue-400 rounded-full animate-bounce"></div>
-                    <div className="w-2 h-2 bg-purple-400 rounded-full animate-bounce" style={{animationDelay: '0.1s'}}></div>
-                    <div className="w-2 h-2 bg-pink-400 rounded-full animate-bounce" style={{animationDelay: '0.2s'}}></div>
-                  </div>
-                  <span className="text-sm text-gray-300">AI is thinking...</span>
+            <div className="flex gap-3" style={{ animation: 'fadeUp 0.3s ease-out' }}>
+              <div className="w-8 h-8 rounded-full bg-white/[0.08] border border-white/[0.08] flex items-center justify-center text-xs text-white/60">✦</div>
+              <div className="bg-white/[0.05] border border-white/[0.06] px-4 py-3 rounded-2xl rounded-bl-md">
+                <div className="flex items-center gap-1.5">
+                  <div className="w-1.5 h-1.5 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: '0ms' }}></div>
+                  <div className="w-1.5 h-1.5 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: '150ms' }}></div>
+                  <div className="w-1.5 h-1.5 bg-violet-400 rounded-full animate-bounce" style={{ animationDelay: '300ms' }}></div>
                 </div>
               </div>
             </div>
           )}
-        </div>
-        <div ref={messagesEndRef} />
-      </div>
-
-      {/* Chat Form */}
-      <div className="sticky bottom-0 backdrop-blur-xl bg-white/5 border-t border-white/10 shadow-xl">
-        <div className="max-w-4xl mx-auto p-4 md:p-6">
-          <form onSubmit={handleSubmit} className="flex gap-3">
-            <div className="flex-1 relative">
-              <input
-                value={inputMessage}
-                onChange={(e) => setInputMessage(e.target.value)}
-                placeholder="Ask me anything..."
-                className="w-full px-4 py-3 md:py-4 pr-12 border border-white/20 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500/50 focus:border-blue-500/50 bg-white/5 backdrop-blur-sm text-white placeholder-white/40 transition-all duration-300 text-sm md:text-base"
-                disabled={isLoading}
-              />
-              <div className="absolute right-3 top-1/2 transform -translate-y-1/2">
-                <span className="text-white/30 text-sm">💬</span>
-              </div>
-            </div>
-            
-            <button
-              type="submit"
-              disabled={isLoading || !inputMessage.trim()}
-              className={`px-4 md:px-6 py-3 md:py-4 rounded-2xl font-semibold transition-all duration-300 transform ${
-                isLoading || !inputMessage.trim()
-                  ? 'bg-gray-600 text-gray-400 cursor-not-allowed scale-95'
-                  : 'bg-gradient-to-r from-blue-500 via-purple-500 to-pink-500 text-white hover:shadow-lg hover:shadow-purple-500/25 hover:scale-105 active:scale-95'
-              }`}
-            >
-              <span className="hidden sm:inline text-sm md:text-base">Send</span>
-              <span className="sm:hidden text-lg">🚀</span>
-            </button>
-          </form>
+          <div ref={messagesEndRef} />
         </div>
       </div>
 
-      <style jsx>{`
-        .animate-fade-in {
-          animation: fadeIn 0.5s ease-out;
-        }
-        
-        @keyframes fadeIn {
-          from {
-            opacity: 0;
-            transform: translateY(10px);
-          }
-          to {
-            opacity: 1;
-            transform: translateY(0);
-          }
+      {/* Input area */}
+      <div className="border-t border-white/[0.06] bg-[#0f1117]/80 backdrop-blur-xl px-4 py-4">
+        <form onSubmit={handleSubmit} className="max-w-3xl mx-auto flex gap-3">
+          <input
+            ref={inputRef}
+            value={inputMessage}
+            onChange={(e) => setInputMessage(e.target.value)}
+            placeholder="Ask me anything about coding..."
+            disabled={isLoading}
+            className="flex-1 bg-white/[0.05] border border-white/[0.08] rounded-xl px-4 py-3 text-sm text-white placeholder-white/25 focus:outline-none focus:border-violet-500/40 focus:ring-1 focus:ring-violet-500/20 transition-all disabled:opacity-50"
+          />
+          <button
+            type="submit"
+            disabled={isLoading || !inputMessage.trim()}
+            className="bg-violet-600 hover:bg-violet-500 disabled:bg-white/[0.06] disabled:text-white/20 text-white px-5 py-3 rounded-xl text-sm font-medium transition-all duration-200 disabled:cursor-not-allowed"
+          >
+            {isLoading ? (
+              <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin"></div>
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+            )}
+          </button>
+        </form>
+      </div>
+
+      <style>{`
+        @keyframes fadeUp {
+          from { opacity: 0; transform: translateY(8px); }
+          to { opacity: 1; transform: translateY(0); }
         }
       `}</style>
     </div>
