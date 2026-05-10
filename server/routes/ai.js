@@ -1,59 +1,60 @@
-
 // server/routes/ai.js - AI Features Backend Implementation
+'use strict';
+
 const express = require('express');
-const router = express.Router();
+const router  = express.Router();
 
-// ✅ API Keys from environment
+// ── Environment ────────────────────────────────────────────────────
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
-const GROQ_API_KEY = process.env.GROQ_API_KEY;
+const GROQ_API_KEY   = process.env.GROQ_API_KEY;
 
-// Model configuration
-const GEMINI_MODEL = 'gemini-flash-latest';
-const GROQ_MODEL = 'llama-3.3-70b-versatile';
+// ── Model Config ───────────────────────────────────────────────────
+const GROQ_MODEL      = 'llama-3.3-70b-versatile';
+const GEMINI_MODEL    = 'gemini-2.0-flash';
+const GROQ_BASE_URL   = 'https://api.groq.com/openai/v1/chat/completions';
 const GEMINI_BASE_URL = 'https://generativelanguage.googleapis.com/v1beta/models';
-const GROQ_BASE_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
-// Rate limiting helper
+const TIMEOUT_MS = 25_000;
+const MAX_TOKENS = 2048;
+
+// ── Rate Limiter ───────────────────────────────────────────────────
 const userRequests = new Map();
-const RATE_LIMIT = 50;
-const RATE_WINDOW = 60 * 60 * 1000;
+const RATE_LIMIT   = 50;
+const RATE_WINDOW  = 60 * 60 * 1_000; // 1 hour
 
 const checkRateLimit = (userId) => {
-  const now = Date.now();
-  const userHistory = userRequests.get(userId) || [];
-  const recentRequests = userHistory.filter(time => now - time < RATE_WINDOW);
-  if (recentRequests.length >= RATE_LIMIT) return false;
-  recentRequests.push(now);
-  userRequests.set(userId, recentRequests);
+  const now     = Date.now();
+  const history = userRequests.get(userId) || [];
+  const recent  = history.filter(t => now - t < RATE_WINDOW);
+  if (recent.length >= RATE_LIMIT) return false;
+  recent.push(now);
+  userRequests.set(userId, recent);
   return true;
 };
 
-// ─── Provider 1: Groq (FREE, fast, reliable) ───
+// ── Provider: Groq ─────────────────────────────────────────────────
 async function callGroq(prompt) {
   if (!GROQ_API_KEY) throw new Error('Groq API key not configured');
-  
+
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 25000);
+  const timeout    = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
   try {
     const response = await fetch(GROQ_BASE_URL, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'Authorization': `Bearer ${GROQ_API_KEY}`
-      },
-      signal: controller.signal,
-      body: JSON.stringify({
-        model: GROQ_MODEL,
-        messages: [{ role: 'user', content: prompt }],
+      method  : 'POST',
+      headers : { 'Content-Type': 'application/json', 'Authorization': `Bearer ${GROQ_API_KEY}` },
+      signal  : controller.signal,
+      body    : JSON.stringify({
+        model      : GROQ_MODEL,
+        messages   : [{ role: 'user', content: prompt }],
         temperature: 0.7,
-        max_tokens: 2048,
-      })
+        max_tokens : MAX_TOKENS,
+      }),
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error?.message || `Groq HTTP ${response.status}`);
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Groq HTTP ${response.status}`);
     }
 
     const data = await response.json();
@@ -65,33 +66,28 @@ async function callGroq(prompt) {
   }
 }
 
-// ─── Provider 2: Gemini (FREE Google AI) ───
+// ── Provider: Gemini ───────────────────────────────────────────────
 async function callGemini(prompt) {
   if (!GEMINI_API_KEY) throw new Error('Gemini API key not configured');
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 25000);
+  const timeout    = setTimeout(() => controller.abort(), TIMEOUT_MS);
 
   try {
-    const url = `${GEMINI_BASE_URL}/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
+    const url      = `${GEMINI_BASE_URL}/${GEMINI_MODEL}:generateContent?key=${GEMINI_API_KEY}`;
     const response = await fetch(url, {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      signal: controller.signal,
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          temperature: 0.7,
-          topK: 40,
-          topP: 0.95,
-          maxOutputTokens: 2048,
-        },
-      })
+      method  : 'POST',
+      headers : { 'Content-Type': 'application/json' },
+      signal  : controller.signal,
+      body    : JSON.stringify({
+        contents        : [{ parts: [{ text: prompt }] }],
+        generationConfig: { temperature: 0.7, topK: 40, topP: 0.95, maxOutputTokens: MAX_TOKENS },
+      }),
     });
 
     if (!response.ok) {
-      const errorData = await response.json().catch(() => ({}));
-      throw new Error(errorData.error?.message || `Gemini HTTP ${response.status}`);
+      const err = await response.json().catch(() => ({}));
+      throw new Error(err.error?.message || `Gemini HTTP ${response.status}`);
     }
 
     const data = await response.json();
@@ -103,11 +99,10 @@ async function callGemini(prompt) {
   }
 }
 
-// ✅ Main AI function: tries Groq first (faster), falls back to Gemini
+// ── callAI: Groq first, fallback to Gemini ─────────────────────────
 async function callAI(prompt) {
   const errors = [];
 
-  // Try Groq first (faster and more reliable on free tier)
   if (GROQ_API_KEY) {
     try {
       console.log('[AI] Trying Groq...');
@@ -118,7 +113,6 @@ async function callAI(prompt) {
     }
   }
 
-  // Fallback to Gemini
   if (GEMINI_API_KEY) {
     try {
       console.log('[AI] Trying Gemini...');
@@ -133,15 +127,19 @@ async function callAI(prompt) {
   throw new Error('AI service temporarily unavailable. Please try again in a few minutes.');
 }
 
-// 1. CHATBOT TUTOR ENDPOINT
+// ── JSON cleaner ───────────────────────────────────────────────────
+const cleanJSON = (raw) => raw.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
+
+// ══════════════════════════════════════════════════════════════════
+//  1. CHATBOT TUTOR
+// ══════════════════════════════════════════════════════════════════
 router.post('/chatbot', async (req, res) => {
   try {
     const { message, userId, context } = req.body;
 
-    if (!message || !message.trim()) {
+    if (!message?.trim()) {
       return res.status(400).json({ success: false, error: 'Message is required' });
     }
-
     if (!checkRateLimit(userId)) {
       return res.status(429).json({ success: false, error: 'Rate limit exceeded. Please try again later.' });
     }
@@ -163,32 +161,30 @@ Instructions for your response:
 Response:`;
 
     const aiResponse = await callAI(prompt);
-
     res.json({ success: true, response: aiResponse, timestamp: new Date().toISOString() });
+
   } catch (error) {
     console.error('[AI Chatbot Error]:', error.message);
     res.status(500).json({ success: false, error: error.message });
   }
 });
 
-
-// 2. DOUBT SOLVER ENDPOINT
+// ══════════════════════════════════════════════════════════════════
+//  2. DOUBT SOLVER
+// ══════════════════════════════════════════════════════════════════
 router.post('/doubt-solver', async (req, res) => {
   try {
     const { code, errorMessage, language, description, userId } = req.body;
-    
+
     if (!checkRateLimit(userId)) {
-      return res.status(429).json({
-        success: false,
-        error: 'Rate limit exceeded. Please try again later.'
-      });
+      return res.status(429).json({ success: false, error: 'Rate limit exceeded. Please try again later.' });
     }
 
     const prompt = `You are an expert coding doubt solver for Trainfy students. A student is facing an issue and needs your help to understand and fix it.
 
 Programming Language: ${language || 'JavaScript'}
 ${errorMessage ? `Error Message: ${errorMessage}` : ''}
-${description ? `Problem Description: ${description}` : ''}
+${description  ? `Problem Description: ${description}` : ''}
 
 Code provided by student:
 \`\`\`${language || 'javascript'}
@@ -204,204 +200,175 @@ Instructions for your response:
 Ensure your explanation is thorough, educational, and directly addresses their specific doubt.`;
 
     const aiResponse = await callAI(prompt);
-    
-    res.json({
-      success: true,
-      solution: aiResponse,
-      timestamp: new Date().toISOString()
-    });
+    res.json({ success: true, solution: aiResponse, timestamp: new Date().toISOString() });
 
   } catch (error) {
     console.error('[AI Doubt Solver Error]:', error.message);
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
-// 3. QUIZ GENERATOR ENDPOINT
+// ══════════════════════════════════════════════════════════════════
+//  3. QUIZ GENERATOR  — always 10 MCQ questions, no exceptions
+// ══════════════════════════════════════════════════════════════════
+const QUIZ_QUESTION_COUNT = 10;
+
 router.post('/generate-quiz', async (req, res) => {
   try {
-    const { topic, difficulty, questionCount, userId } = req.body;
-    
-    if (!topic || !topic.trim()) {
+    const { topic, difficulty, userId } = req.body;
+
+    if (!topic?.trim()) {
       return res.status(400).json({ success: false, error: 'Topic is required' });
     }
-
     if (!checkRateLimit(userId)) {
-      return res.status(429).json({
-        success: false,
-        error: 'Rate limit exceeded. Please try again later.'
-      });
+      return res.status(429).json({ success: false, error: 'Rate limit exceeded. Please try again later.' });
     }
 
-    const prompt = `Create an engaging and educational interactive quiz for Trainfy students on the following topic:
+    const prompt = `Create a multiple-choice quiz for Trainfy students.
 
-Topic: ${topic}
-Difficulty: ${difficulty || 'intermediate'}
-Number of Questions: ${questionCount || 5}
+Topic      : ${topic}
+Difficulty : ${difficulty || 'intermediate'}
 
-Generate questions in this EXACT JSON format ONLY (do not include markdown tags like \`\`\`json):
+STRICT REQUIREMENTS — follow exactly:
+- Generate EXACTLY ${QUIZ_QUESTION_COUNT} questions. No more, no less.
+- Every question MUST be type "multiple_choice".
+- Every question MUST have EXACTLY 4 answer options.
+- "correct_answer" MUST be a number: 0 = first option, 1 = second, 2 = third, 3 = fourth.
+- Output ONLY valid raw JSON. No markdown. No code fences. No explanation text outside JSON.
+
+JSON format to follow:
 {
   "quiz": {
-    "title": "${topic} Mastery Quiz",
-    "description": "Test and reinforce your understanding of ${topic}",
+    "title": "${topic} Quiz",
+    "description": "Test your understanding of ${topic}",
     "questions": [
       {
         "id": 1,
         "type": "multiple_choice",
-        "question": "Question text here?",
+        "question": "Your question here?",
         "options": ["Option A", "Option B", "Option C", "Option D"],
         "correct_answer": 0,
-        "explanation": "Provide a detailed explanation of WHY this answer is correct and why the others are wrong."
-      },
-      {
-        "id": 2,
-        "type": "short_answer",
-        "question": "Question requiring written response?",
-        "sample_answer": "Expected answer format",
-        "key_points": ["Point 1", "Point 2", "Point 3"]
+        "explanation": "Why this answer is correct and why others are wrong."
       }
     ]
   }
 }
 
-Ensure the questions test deep understanding, not just memorization. Include detailed explanations for the answers so students learn from their mistakes.`;
+Generate all ${QUIZ_QUESTION_COUNT} questions now:`;
 
     const aiResponse = await callAI(prompt);
-    
-    // Try to parse JSON response
+
     try {
-      const cleanResponse = aiResponse.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      const quizData = JSON.parse(cleanResponse);
-      
-      res.json({
-        success: true,
-        quiz: quizData.quiz || quizData,
-        timestamp: new Date().toISOString()
-      });
+      const quizData = JSON.parse(cleanJSON(aiResponse));
+      const quiz     = quizData.quiz || quizData;
+
+      // Sanitise & enforce rules server-side
+      if (Array.isArray(quiz.questions)) {
+        quiz.questions = quiz.questions
+          .filter(q => Array.isArray(q.options) && q.options.length === 4)
+          .slice(0, QUIZ_QUESTION_COUNT)
+          .map((q, i) => ({
+            id            : i + 1,
+            type          : 'multiple_choice',
+            question      : q.question,
+            options       : q.options,
+            correct_answer: typeof q.correct_answer === 'number' ? q.correct_answer
+                          : typeof q.correctAnswer  === 'number' ? q.correctAnswer
+                          : 0,
+            explanation   : q.explanation || '',
+          }));
+      }
+
+      res.json({ success: true, quiz, timestamp: new Date().toISOString() });
+
     } catch (parseError) {
-      // If JSON parsing fails, return raw response
-      res.json({
-        success: true,
-        quiz: {
-          title: `${topic} Quiz`,
-          raw_response: aiResponse
-        },
-        timestamp: new Date().toISOString()
+      console.error('[Quiz] JSON parse failed:', parseError.message);
+      res.status(500).json({
+        success: false,
+        error  : 'Failed to parse quiz data. Please try again.',
       });
     }
 
   } catch (error) {
     console.error('[AI Quiz Generator Error]:', error.message);
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
-// 4. QUIZ ANSWER EVALUATION ENDPOINT
+// ══════════════════════════════════════════════════════════════════
+//  4. QUIZ ANSWER EVALUATION
+// ══════════════════════════════════════════════════════════════════
 router.post('/evaluate-answer', async (req, res) => {
   try {
     const { question, userAnswer, correctAnswer, questionType, userId } = req.body;
-    
+
     if (!checkRateLimit(userId)) {
-      return res.status(429).json({
-        success: false,
-        error: 'Rate limit exceeded. Please try again later.'
-      });
+      return res.status(429).json({ success: false, error: 'Rate limit exceeded. Please try again later.' });
     }
 
+    // MCQ — no AI call needed, just compare
     if (questionType === 'multiple_choice') {
       const isCorrect = userAnswer === correctAnswer;
-      res.json({
-        success: true,
+      return res.json({
+        success : true,
         isCorrect,
-        score: isCorrect ? 100 : 0,
-        feedback: isCorrect ? "Correct! Well done!" : "That's not quite right. Try again!"
+        score   : isCorrect ? 100 : 0,
+        feedback: isCorrect ? 'Correct! Well done!' : "That's not quite right. Try again!",
       });
-      return;
     }
 
-    // For short answer questions, use AI evaluation
+    // Short answer — AI evaluation
     const prompt = `You are evaluating a student's answer for Trainfy quiz system.
 
 Question: ${question}
 Expected Answer/Key Points: ${correctAnswer}
 Student's Answer: ${userAnswer}
 
-Evaluate the student's answer and provide:
-1. Score (0-100)
-2. Brief feedback (2-3 sentences)
-3. What they got right
-4. What they could improve
-
-Respond in this JSON format:
+Respond ONLY with this JSON (no extra text):
 {
   "score": 85,
-  "feedback": "Good understanding shown...",
-  "strengths": "You correctly identified...",
-  "improvements": "Consider also mentioning..."
+  "feedback": "Brief 2-3 sentence feedback.",
+  "strengths": "What the student got right.",
+  "improvements": "What the student could improve."
 }`;
 
     const aiResponse = await callAI(prompt);
-    
+
     try {
-      const cleanResponse = aiResponse.replace(/```json\n?/g, '').replace(/```\n?/g, '').trim();
-      const evaluation = JSON.parse(cleanResponse);
-      
-      res.json({
-        success: true,
-        ...evaluation,
-        timestamp: new Date().toISOString()
-      });
-    } catch (parseError) {
-      res.json({
-        success: true,
-        score: 50,
-        feedback: aiResponse,
-        timestamp: new Date().toISOString()
-      });
+      const evaluation = JSON.parse(cleanJSON(aiResponse));
+      res.json({ success: true, ...evaluation, timestamp: new Date().toISOString() });
+    } catch {
+      res.json({ success: true, score: 50, feedback: aiResponse, timestamp: new Date().toISOString() });
     }
 
   } catch (error) {
     console.error('[AI Evaluate Error]:', error.message);
-    res.status(500).json({
-      success: false,
-      error: error.message
-    });
+    res.status(500).json({ success: false, error: error.message });
   }
 });
 
-// Health check endpoint
+// ══════════════════════════════════════════════════════════════════
+//  HEALTH CHECK
+// ══════════════════════════════════════════════════════════════════
 router.get('/health', async (req, res) => {
   const status = { groq: 'not configured', gemini: 'not configured' };
-  
+
   if (GROQ_API_KEY) {
-    try {
-      await callGroq('test');
-      status.groq = 'working';
-    } catch (e) {
-      status.groq = `error: ${e.message.substring(0, 50)}`;
-    }
+    try   { await callGroq('ping'); status.groq = 'working'; }
+    catch (e) { status.groq = `error: ${e.message.substring(0, 50)}`; }
   }
-  
+
   if (GEMINI_API_KEY) {
-    try {
-      await callGemini('test');
-      status.gemini = 'working';
-    } catch (e) {
-      status.gemini = `error: ${e.message.substring(0, 50)}`;
-    }
+    try   { await callGemini('ping'); status.gemini = 'working'; }
+    catch (e) { status.gemini = `error: ${e.message.substring(0, 50)}`; }
   }
-  
+
   res.json({
-    success: true,
-    message: 'AI service is running',
-    providers: status,
-    features: ['chatbot', 'doubt-solver', 'quiz-generator', 'answer-evaluation']
+    success     : true,
+    message     : 'AI service is running',
+    providers   : status,
+    features    : ['chatbot', 'doubt-solver', 'quiz-generator', 'answer-evaluation'],
+    quiz_config : { question_count: QUIZ_QUESTION_COUNT, question_type: 'multiple_choice' },
   });
 });
 

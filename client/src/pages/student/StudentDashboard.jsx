@@ -76,51 +76,20 @@ const StudentDashboard = () => {
     },
   ];
 
-  // Fetch all progress data with proper error handling
   useEffect(() => {
-    const fetchAllProgress = async () => {
-      try {
-        console.log("📊 Fetching all progress data...");
-        const response = await API.get("/progress/");
-        console.log("📈 Progress response:", response.data);
-
-        if (response.data.success) {
-          const progressData = response.data.data.courseProgress || [];
-          const statsData = {
-            totalEnrolled: response.data.data.totalEnrolledCourses || 0,
-            totalCompleted: response.data.data.totalCompletedCourses || 0,
-            completionRate: response.data.data.overallCompletionRate || "0%",
-          };
-
-          console.log("✅ Setting course progress:", progressData);
-          console.log("✅ Setting completion stats:", statsData);
-
-          setCourseProgress(progressData);
-          setCompletionStats(statsData);
-        }
-      } catch (error) {
-        console.error("Failed to fetch progress:", error);
-        setCourseProgress([]);
-        setCompletionStats({
-          totalEnrolled: 0,
-          totalCompleted: 0,
-          completionRate: "0%",
-        });
-      }
-    };
-    fetchAllProgress();
+    fetchStudentData();
   }, []);
 
   useEffect(() => {
-    fetchStudentData();
-
     if (location.state?.activeTab) {
       setActiveTab(location.state.activeTab);
       toast.success(
         "🎉 Course completed! Your certificate is ready for download."
       );
+      // Clean up location state to avoid re-triggering
+      navigate(location.pathname, { replace: true, state: {} });
     }
-  }, [location.state]);
+  }, [location, navigate]);
 
   useEffect(() => {
     calculateDashboardStats();
@@ -135,52 +104,48 @@ const StudentDashboard = () => {
   const fetchStudentData = async () => {
     try {
       setLoading(true);
-      const [userResponse, coursesResponse] = await Promise.all([
+      const [userResponse, coursesResponse, progressResponse] = await Promise.all([
         API.get("/users/me"),
         API.get("/courses"),
+        API.get("/progress/").catch(() => ({ data: { success: false } }))
       ]);
 
       const userData = userResponse.data.user || userResponse.data;
-      const coursesData =
-        coursesResponse.data.courses || coursesResponse.data || [];
+      const coursesData = coursesResponse.data.courses || coursesResponse.data || [];
 
       setEnrolledCourses(userData.enrolledCourses || []);
       setAvailableCourses(coursesData);
 
+      if (progressResponse.data && progressResponse.data.success) {
+        const progressData = progressResponse.data.data.courseProgress || [];
+        setCourseProgress(progressData);
+        
+        const statsData = {
+          totalEnrolled: progressResponse.data.data.totalEnrolledCourses || 0,
+          totalCompleted: progressResponse.data.data.totalCompletedCourses || 0,
+          completionRate: progressResponse.data.data.overallCompletionRate || "0%",
+        };
+        setCompletionStats(statsData);
+
+        const progressMap = {};
+        progressData.forEach(p => {
+          progressMap[p.courseId || p.course] = p;
+        });
+        setUserProgress(progressMap);
+      }
+
+      // Turn off loading before checking certificates to improve perceived performance
+      setLoading(false);
+
       if (userData.enrolledCourses && userData.enrolledCourses.length > 0) {
-        await fetchProgressData(userData.enrolledCourses);
-        await checkCertificateStatus(userData.enrolledCourses);
+        // Fetch certificates in background (non-blocking)
+        checkCertificateStatus(userData.enrolledCourses);
       }
     } catch (error) {
       console.error("Failed to fetch student data:", error);
       toast.error("Failed to load dashboard data");
-    } finally {
       setLoading(false);
     }
-  };
-
-  const fetchProgressData = async (courses) => {
-    const progressPromises = courses.map(async (course) => {
-      try {
-        const courseId = typeof course === "string" ? course : course._id;
-        const response = await API.get(`/progress/${courseId}`);
-        if (response.data.success) {
-          return { courseId, progress: response.data.data };
-        }
-        return { courseId, progress: null };
-      } catch (error) {
-        const courseId = typeof course === "string" ? course : course._id;
-        console.error(`Error fetching progress for course ${courseId}:`, error);
-        return { courseId, progress: null };
-      }
-    });
-
-    const progressResults = await Promise.all(progressPromises);
-    const progressMap = {};
-    progressResults.forEach(({ courseId, progress }) => {
-      progressMap[courseId] = progress;
-    });
-    setUserProgress(progressMap);
   };
 
   const checkCertificateStatus = async (courses) => {
@@ -370,26 +335,10 @@ const StudentDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900">
-      {/* Animated Background Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          className="absolute -top-4 -left-4 w-72 h-72 bg-gradient-to-r from-cyan-400/20 to-blue-500/20 rounded-full filter blur-3xl"
-          animate={{
-            x: [0, 100, 0],
-            y: [0, -100, 0],
-            scale: [1, 1.2, 1],
-          }}
-          transition={{ duration: 20, repeat: Infinity }}
-        />
-        <motion.div
-          className="absolute top-1/2 -right-4 w-72 h-72 bg-gradient-to-r from-purple-400/20 to-pink-500/20 rounded-full filter blur-3xl"
-          animate={{
-            x: [0, -100, 0],
-            y: [0, 100, 0],
-            scale: [1.2, 1, 1.2],
-          }}
-          transition={{ duration: 25, repeat: Infinity }}
-        />
+      {/* Static Background Elements for Performance */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+        <div className="absolute -top-4 -left-4 w-72 h-72 bg-gradient-to-r from-cyan-400/10 to-blue-500/10 rounded-full blur-[100px]" />
+        <div className="absolute top-1/2 -right-4 w-72 h-72 bg-gradient-to-r from-purple-400/10 to-pink-500/10 rounded-full blur-[100px]" />
       </div>
 
       {/* AI ASSISTANT FLOATING BUTTON */}
@@ -588,19 +537,7 @@ const StudentDashboard = () => {
               )}
             </div>
             <div className="flex items-center gap-2 sm:gap-4 w-full sm:w-auto">
-              {/* AI ASSISTANT HEADER BUTTON */}
-              <motion.button
-                onClick={() => setShowAIAssistant(true)}
-                className="bg-gradient-to-r from-cyan-500 to-blue-600 hover:from-cyan-600 hover:to-blue-700 text-white px-3 py-2 sm:px-6 sm:py-3 rounded-xl sm:rounded-2xl font-bold transition-all duration-300 flex items-center gap-1 sm:gap-2 shadow-lg text-xs sm:text-base flex-1 sm:flex-initial justify-center sm:justify-start"
-                initial={{ scale: 0, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
-                transition={{ delay: 0.6 }}
-                whileHover={{ scale: 1.05 }}
-                whileTap={{ scale: 0.95 }}
-              >
-                <span className="text-sm sm:text-md">🤖</span>
-                AI Assistant
-              </motion.button>
+
               <motion.div
                 className="text-center bg-white/10 rounded-xl sm:rounded-2xl p-3 sm:p-6 backdrop-blur-sm border border-white/20 flex-1 sm:flex-initial"
                 initial={{ scale: 0.8, opacity: 0 }}
@@ -885,51 +822,6 @@ const StudentDashboard = () => {
               transition={{ duration: 0.5 }}
               className="space-y-4 sm:space-y-8"
             >
-              {/* AI Assistant Page Header */}
-              <motion.div
-                className="bg-gradient-to-br from-slate-800 via-purple-900 to-indigo-900 rounded-2xl sm:rounded-3xl p-4 sm:p-8 border border-white/20 shadow-2xl"
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: 0.1 }}
-              >
-                <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 sm:gap-0">
-                  <div>
-                    <h2 className="text-2xl sm:text-4xl font-bold text-white flex items-center gap-2 sm:gap-4 mb-2 sm:mb-3">
-                      <span className="text-3xl sm:text-5xl">🤖</span>
-                      AI Learning Assistant
-                    </h2>
-                    <p className="text-blue-100 text-sm sm:text-lg mb-3 sm:mb-0">
-                      Your personal AI tutor for coding and learning - Available
-                      24/7
-                    </p>
-                    <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 mt-2 sm:mt-4">
-                      <div className="flex items-center gap-2 text-green-400">
-                        <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                        <span className="text-xs sm:text-sm">
-                          Online & Ready
-                        </span>
-                      </div>
-                      <div className="text-cyan-200 text-xs sm:text-sm">
-                        🎯 Personalized • 💡 Interactive • 🚀 Instant Help
-                      </div>
-                    </div>
-                  </div>
-                  <motion.div
-                    className="text-4xl sm:text-8xl self-center sm:self-auto"
-                    animate={{
-                      rotate: [0, 10, -10, 0],
-                      scale: [1, 1.1, 1],
-                    }}
-                    transition={{
-                      duration: 3,
-                      repeat: Infinity,
-                      repeatDelay: 2,
-                    }}
-                  >
-                    🧠
-                  </motion.div>
-                </div>
-              </motion.div>
 
               {/* AI Feature Navigation */}
               <motion.div
@@ -1014,7 +906,7 @@ const StudentDashboard = () => {
                             Code Debugger
                           </h3>
                           <p className="text-gray-300 text-sm sm:text-base">
-                            Debug your code and fix errors with AI assistance
+                            Paste your code and fix errors with AI assistance
                           </p>
                         </div>
                         <DoubtSolver userId={user?._id} />

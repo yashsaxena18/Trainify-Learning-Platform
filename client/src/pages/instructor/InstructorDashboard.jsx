@@ -9,7 +9,6 @@ import { motion, AnimatePresence } from "framer-motion";
 const InstructorDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
-  const [dashboardData, setDashboardData] = useState(null);
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
@@ -39,8 +38,6 @@ const InstructorDashboard = () => {
       const results = await Promise.allSettled([
         fetchDashboardData(),
         fetchInstructorCourses(),
-        fetchActivities(),
-        fetchStudentProgress(),
       ]);
 
       results.forEach((result, index) => {
@@ -49,34 +46,34 @@ const InstructorDashboard = () => {
         }
       });
 
+      // Turn off loading to improve perceived LCP
+      setLoading(false);
+
+      // Fetch background data without blocking UI
+      Promise.allSettled([
+        fetchActivities(),
+        fetchStudentProgress()
+      ]);
+
       console.log("✅ Data fetching completed");
     } catch (error) {
       console.error("Error fetching instructor data:", error);
       toast.error("Failed to load dashboard data");
-    } finally {
       setLoading(false);
     }
   };
 
   const fetchDashboardData = async () => {
     try {
-      const [dashboardRes, analyticsRes] = await Promise.all([
-        API.get("/instructor/dashboard"),
-        API.get("/instructor/analytics"),
-      ]);
-
-      if (dashboardRes.data) {
-        setDashboardData(dashboardRes.data);
-      }
-
-      if (analyticsRes.data) {
+      const response = await API.get("/instructor/analytics");
+      if (response.data) {
         setAnalytics({
-          totalCourses: analyticsRes.data.totalCourses || 0,
-          totalStudents: analyticsRes.data.totalStudents || 0,
-          totalViews: analyticsRes.data.totalViews || 0,
-          avgRating: analyticsRes.data.avgRating || 0,
-          totalRevenue: analyticsRes.data.totalRevenue || 0,
-          coursePerformance: analyticsRes.data.coursePerformance || [],
+          totalCourses: response.data.totalCourses || 0,
+          totalStudents: response.data.totalStudents || 0,
+          totalViews: response.data.totalViews || 0,
+          avgRating: response.data.avgRating || 0,
+          totalRevenue: response.data.totalRevenue || 0,
+          coursePerformance: response.data.coursePerformance || [],
         });
       }
     } catch (error) {
@@ -236,26 +233,10 @@ const InstructorDashboard = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-indigo-900">
-      {/* Animated Background Elements */}
-      <div className="fixed inset-0 overflow-hidden pointer-events-none">
-        <motion.div
-          className="absolute -top-4 -left-4 w-72 h-72 bg-gradient-to-r from-cyan-400/20 to-blue-500/20 rounded-full filter blur-3xl"
-          animate={{
-            x: [0, 100, 0],
-            y: [0, -100, 0],
-            scale: [1, 1.2, 1],
-          }}
-          transition={{ duration: 20, repeat: Infinity }}
-        />
-        <motion.div
-          className="absolute top-1/2 -right-4 w-72 h-72 bg-gradient-to-r from-purple-400/20 to-pink-500/20 rounded-full filter blur-3xl"
-          animate={{
-            x: [0, -100, 0],
-            y: [0, 100, 0],
-            scale: [1.2, 1, 1.2],
-          }}
-          transition={{ duration: 25, repeat: Infinity }}
-        />
+      {/* Static Background Elements for Performance */}
+      <div className="fixed inset-0 overflow-hidden pointer-events-none -z-10">
+        <div className="absolute -top-4 -left-4 w-72 h-72 bg-gradient-to-r from-cyan-400/10 to-blue-500/10 rounded-full blur-[100px]" />
+        <div className="absolute top-1/2 -right-4 w-72 h-72 bg-gradient-to-r from-purple-400/10 to-pink-500/10 rounded-full blur-[100px]" />
       </div>
 
       {/* Modern Header */}

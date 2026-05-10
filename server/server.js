@@ -50,6 +50,8 @@ app.use(cors({
 
 
 // -------------------- Middleware --------------------
+const compression = require('compression');
+app.use(compression()); // Compress all routes
 app.use(express.json()); // parse JSON
 
 // -------------------- Routes --------------------
