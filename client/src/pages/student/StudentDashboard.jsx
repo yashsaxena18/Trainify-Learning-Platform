@@ -1,17 +1,27 @@
-// src/pages/student/StudentDashboard.jsx - Complete AI-Integrated Version
-import React, { useState, useEffect } from "react";
+// src/pages/student/StudentDashboard.jsx - Performance Optimized
+import React, { useState, useEffect, Suspense } from "react";
 import { useAuth } from "../../context/AuthContext";
 import API from "../../services/api";
 import { toast } from "react-hot-toast";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
-import CertificatesSection from "../../components/certificates/CertificatesSection";
-import PaymentModal from "../../components/payment/PaymentModal";
 
-// AI COMPONENTS IMPORT
-import ChatbotTutor from "../../components/AI/ChatbotTutor";
-import DoubtSolver from "../../components/AI/DoubtSolver";
-import QuizMaker from "../../components/AI/QuizMaker";
+// LAZY LOADED - These only download when user navigates to their respective tabs
+const CertificatesSection = React.lazy(() => import("../../components/certificates/CertificatesSection"));
+const PaymentModal = React.lazy(() => import("../../components/payment/PaymentModal"));
+const ChatbotTutor = React.lazy(() => import("../../components/AI/ChatbotTutor"));
+const DoubtSolver = React.lazy(() => import("../../components/AI/DoubtSolver"));
+const QuizMaker = React.lazy(() => import("../../components/AI/QuizMaker"));
+
+// Lightweight fallback for lazy components
+const TabLoading = () => (
+  <div className="flex items-center justify-center py-16">
+    <div className="text-center">
+      <div className="w-10 h-10 border-3 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
+      <p className="text-gray-400 text-sm">Loading...</p>
+    </div>
+  </div>
+);
 
 const StudentDashboard = () => {
   const { user } = useAuth();
@@ -351,33 +361,12 @@ const StudentDashboard = () => {
         whileHover={{ scale: 1.1, rotate: 5 }}
         whileTap={{ scale: 0.95 }}
       >
-        <motion.div
-          animate={{
-            scale: [1, 1.2, 1],
-            rotate: [0, 10, -10, 0],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            repeatDelay: 3,
-          }}
-        >
+        <div className="text-xl">
           🤖
-        </motion.div>
+        </div>
 
-        {/* Pulsing ring effect */}
-        <motion.div
-          className="absolute inset-0 border-2 border-cyan-400 rounded-full"
-          animate={{
-            scale: [1, 1.5, 2],
-            opacity: [1, 0.5, 0],
-          }}
-          transition={{
-            duration: 2,
-            repeat: Infinity,
-            repeatDelay: 1,
-          }}
-        />
+        {/* Static ring effect instead of pulsing */}
+        <div className="absolute inset-0 border-2 border-cyan-400/50 rounded-full" />
       </motion.button>
 
       {/* AI ASSISTANT MODAL */}
@@ -564,7 +553,7 @@ const StudentDashboard = () => {
       {/* Modern Navigation Tabs */}
       <div className="relative z-10 max-w-7xl mx-auto px-2 sm:px-4 lg:px-8">
         <motion.div
-          className="flex flex-wrap gap-1 pt-3 sm:pt-6 bg-white/5 rounded-b-2xl backdrop-blur-sm overflow-x-auto"
+          className="flex w-full pt-3 sm:pt-6 bg-white/5 rounded-b-2xl backdrop-blur-sm overflow-x-auto custom-scrollbar"
           initial={{ y: -20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.6 }}
@@ -607,17 +596,16 @@ const StudentDashboard = () => {
               color: "from-cyan-500 to-blue-500",
             },
           ].map(({ id, name, shortName, color }) => (
-            <motion.button
+            <button
               key={id}
               onClick={() => {
                 setActiveTab(id);
               }}
-              className={`relative px-3 py-2 sm:px-6 sm:py-4 rounded-t-lg sm:rounded-t-2xl font-bold text-xs sm:text-sm transition-all duration-300 whitespace-nowrap ${
+              className={`relative flex-1 flex justify-center items-center px-2 py-3 sm:px-4 sm:py-4 rounded-t-lg sm:rounded-t-2xl font-bold text-xs sm:text-sm transition-all duration-300 whitespace-nowrap ${
                 activeTab === id
-                  ? `bg-gradient-to-r ${color} text-white shadow-2xl transform scale-105`
+                  ? `bg-gradient-to-r ${color} text-white shadow-2xl`
                   : "text-gray-300 hover:text-white hover:bg-white/10"
               }`}
-              whileHover={{ y: -2 }}
               whileTap={{ scale: 0.95 }}
             >
               {activeTab === id && (
@@ -630,19 +618,9 @@ const StudentDashboard = () => {
               <span className="relative z-10 block sm:hidden">{shortName}</span>
               <span className="relative z-10 hidden sm:block">{name}</span>
               {id === "ai-assistant" && (
-                <motion.div
-                  className="absolute -top-1 -right-1 w-2 h-2 sm:w-3 sm:h-3 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full"
-                  animate={{
-                    scale: [1, 1.2, 1],
-                    opacity: [1, 0.7, 1],
-                  }}
-                  transition={{
-                    duration: 2,
-                    repeat: Infinity,
-                  }}
-                />
+                <div className="absolute top-2 right-2 sm:top-3 sm:right-3 w-2 h-2 sm:w-2 sm:h-2 bg-gradient-to-r from-green-400 to-emerald-500 rounded-full shadow-lg" />
               )}
-            </motion.button>
+            </button>
           ))}
         </motion.div>
       </div>

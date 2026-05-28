@@ -1,12 +1,10 @@
-// src/App.jsx - Updated with Stripe integration
+// src/App.jsx - Performance Optimized
 import React, { Suspense } from "react";
 import { Routes, Route, Navigate } from "react-router-dom";
 import { Toaster } from "react-hot-toast";
 import { useAuth } from "./context/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import Navbar from "./components/layout/Navbar";
-import { Elements } from "@stripe/react-stripe-js";
-import { loadStripe } from "@stripe/stripe-js";
 
 // Lazy Loaded Components
 const Login = React.lazy(() => import("./components/auth/Login"));
@@ -19,137 +17,147 @@ const CoursePlayer = React.lazy(() => import("./pages/course/CoursePlayer"));
 const InstructorCourseManager = React.lazy(() => import("./pages/instructor/InstructorCourseManager"));
 const AILearningAssistant = React.lazy(() => import("./components/AI/AILearningAssistant"));
 
-// Initialize Stripe
-const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
-
-const LoadingSpinner = () => (
-  <div className="min-h-screen flex items-center justify-center bg-gray-900">
-    <div className="animate-spin rounded-full h-16 w-16 border-t-2 border-b-2 border-indigo-500"></div>
+// Skeleton Loading Component (better UX than spinner)
+const LoadingSkeletonPage = () => (
+  <div className="min-h-screen bg-gray-900 animate-pulse">
+    {/* Skeleton Navbar */}
+    <div className="h-16 bg-gray-800/50 border-b border-gray-700/30" />
+    {/* Skeleton Header */}
+    <div className="max-w-7xl mx-auto px-4 pt-8 pb-4">
+      <div className="h-10 bg-gray-800/40 rounded-xl w-64 mb-3" />
+      <div className="h-5 bg-gray-800/30 rounded-lg w-96" />
+    </div>
+    {/* Skeleton Cards */}
+    <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
+      {[...Array(4)].map((_, i) => (
+        <div key={i} className="h-32 bg-gray-800/30 rounded-2xl border border-gray-700/20" />
+      ))}
+    </div>
+    <div className="max-w-7xl mx-auto px-4 mt-6">
+      <div className="h-64 bg-gray-800/20 rounded-2xl border border-gray-700/20" />
+    </div>
   </div>
 );
 
 function App() {
-  const { isAuthenticated, loading } = useAuth();
-  const { user } = useAuth();
+  const { isAuthenticated, loading, user } = useAuth();
 
   if (loading) {
-    return <LoadingSpinner />;
+    return <LoadingSkeletonPage />;
   }
 
   return (
-    <Elements stripe={stripePromise}>
-      <div className="App bg-gray-900 min-h-screen">
-        <Toaster
-          position="top-right"
-          toastOptions={{
-            duration: 4000,
-            style: {
-              background: "#363636",
-              color: "#fff",
+    <div className="App bg-gray-900 min-h-screen">
+      <Toaster
+        position="top-right"
+        toastOptions={{
+          duration: 4000,
+          style: {
+            background: "#363636",
+            color: "#fff",
+          },
+          success: {
+            duration: 3000,
+            theme: {
+              primary: "green",
+              secondary: "black",
             },
-            success: {
-              duration: 3000,
-              theme: {
-                primary: "green",
-                secondary: "black",
-              },
-            },
-          }}
-        />
+          },
+        }}
+      />
 
-        {/* Only show Navbar on authenticated routes */}
-        <Navbar />
+      {/* Only show Navbar on authenticated routes */}
+      <Navbar />
 
-        <Suspense fallback={<LoadingSpinner />}>
-          <Routes>
-            {/* HOME ROUTE - Should be accessible to everyone */}
-            <Route path="/" element={<Home />} />
+      <Suspense fallback={<LoadingSkeletonPage />}>
+        <Routes>
+          {/* HOME ROUTE - Should be accessible to everyone */}
+          <Route path="/" element={<Home />} />
 
-            {/* Public Routes */}
-            <Route
-              path="/login"
-              element={
-                !isAuthenticated ? (
-                  <Login />
-                ) : (
-                  <Navigate to="/dashboard" replace />
-                )
-              }
-            />
-            <Route
-              path="/register"
-              element={
-                !isAuthenticated ? (
-                  <Register />
-                ) : (
-                  <Navigate to="/dashboard" replace />
-                )
-              }
-            />
+          {/* Public Routes */}
+          <Route
+            path="/login"
+            element={
+              !isAuthenticated ? (
+                <Login />
+              ) : (
+                <Navigate to="/dashboard" replace />
+              )
+            }
+          />
+          <Route
+            path="/register"
+            element={
+              !isAuthenticated ? (
+                <Register />
+              ) : (
+                <Navigate to="/dashboard" replace />
+              )
+            }
+          />
 
-            {/* Protected Routes */}
-            <Route
-              path="/student/dashboard"
-              element={
-                <ProtectedRoute allowedRoles={["student"]}>
-                  <StudentDashboard />
-                </ProtectedRoute>
-              }
-            />
-            <Route
-              path="/student/dashboard/ai-assistant"
-              element={
-                <ProtectedRoute allowedRoles={["student"]}>
-                  <AILearningAssistant userId={user?.id} />
-                </ProtectedRoute>
-              }
-            />
+          {/* Protected Routes */}
+          <Route
+            path="/student/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <StudentDashboard />
+              </ProtectedRoute>
+            }
+          />
+          <Route
+            path="/student/dashboard/ai-assistant"
+            element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <AILearningAssistant userId={user?.id} />
+              </ProtectedRoute>
+            }
+          />
 
-            <Route
-              path="/instructor/dashboard"
-              element={
-                <ProtectedRoute allowedRoles={["instructor"]}>
-                  <InstructorDashboard />
-                </ProtectedRoute>
-              }
-            />
+          <Route
+            path="/instructor/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["instructor"]}>
+                <InstructorDashboard />
+              </ProtectedRoute>
+            }
+          />
 
-            <Route
-              path="/admin/dashboard"
-              element={
-                <ProtectedRoute allowedRoles={["admin"]}>
-                  <AdminDashboard />
-                </ProtectedRoute>
-              }
-            />
+          <Route
+            path="/admin/dashboard"
+            element={
+              <ProtectedRoute allowedRoles={["admin"]}>
+                <AdminDashboard />
+              </ProtectedRoute>
+            }
+          />
 
-            <Route
-              path="/course/:courseId/learn"
-              element={
-                <ProtectedRoute allowedRoles={["student"]}>
-                  <CoursePlayer />
-                </ProtectedRoute>
-              }
-            />
+          <Route
+            path="/course/:courseId/learn"
+            element={
+              <ProtectedRoute allowedRoles={["student"]}>
+                <CoursePlayer />
+              </ProtectedRoute>
+            }
+          />
 
-            <Route
-              path="/instructor/course/:id"
-              element={
-                <ProtectedRoute allowedRoles={["instructor"]}>
-                  <InstructorCourseManager />
-                </ProtectedRoute>
-              }
-            />
+          <Route
+            path="/instructor/course/:id"
+            element={
+              <ProtectedRoute allowedRoles={["instructor"]}>
+                <InstructorCourseManager />
+              </ProtectedRoute>
+            }
+          />
 
-            {/* Role-based redirect */}
-            <Route path="/dashboard" element={<RoleBasedRedirect />} />
+          {/* Role-based redirect */}
+          <Route path="/dashboard" element={<RoleBasedRedirect />} />
 
-            {/* Catch all route */}
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </Suspense>
-      </div>
-    </Elements>
+          {/* Catch all route */}
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </Suspense>
+    </div>
   );
 }
 

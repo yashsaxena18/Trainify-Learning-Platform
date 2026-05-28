@@ -34,19 +34,11 @@ const Hero = () => {
               transition={{ duration: 0.5, delay: 0.4 }}
             >
               Learn Skills That{" "}
-              <motion.span
+              <span
                 className="text-yellow-400 drop-shadow-lg"
-                animate={{
-                  textShadow: [
-                    "0 0 20px #facc15",
-                    "0 0 40px #facc15",
-                    "0 0 20px #facc15",
-                  ],
-                }}
-                transition={{ duration: 2, repeat: Infinity }}
               >
                 Matter
-              </motion.span>
+              </span>
             </motion.h1>
 
             <motion.p

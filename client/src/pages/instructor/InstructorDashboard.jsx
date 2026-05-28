@@ -12,8 +12,6 @@ const InstructorDashboard = () => {
   const [courses, setCourses] = useState([]);
   const [loading, setLoading] = useState(true);
   const [showCreateForm, setShowCreateForm] = useState(false);
-  const [activities, setActivities] = useState([]);
-  const [unreadCount, setUnreadCount] = useState(0);
 
   // Enhanced state for analytics and students
   const [analytics, setAnalytics] = useState({
@@ -51,7 +49,6 @@ const InstructorDashboard = () => {
 
       // Fetch background data without blocking UI
       Promise.allSettled([
-        fetchActivities(),
         fetchStudentProgress()
       ]);
 
@@ -92,17 +89,6 @@ const InstructorDashboard = () => {
     }
   };
 
-  const fetchActivities = async () => {
-    try {
-      const response = await API.get("/activity/instructor");
-      if (response.data.success) {
-        setActivities(response.data.activities || []);
-        setUnreadCount(response.data.unreadCount || 0);
-      }
-    } catch (error) {
-      console.error("Failed to fetch activities:", error);
-    }
-  };
 
   const fetchInstructorCourses = async () => {
     try {
@@ -154,18 +140,6 @@ const InstructorDashboard = () => {
     return () => clearInterval(interval);
   }, []);
 
-  const markActivitiesAsRead = async () => {
-    try {
-      await API.put("/activity/mark-read");
-      setUnreadCount(0);
-      setActivities(
-        activities.map((activity) => ({ ...activity, isRead: true }))
-      );
-      toast.success("All activities marked as read");
-    } catch (error) {
-      console.error("Failed to mark activities as read:", error);
-    }
-  };
 
   const handleViewAnalytics = async () => {
     try {
@@ -212,8 +186,6 @@ const InstructorDashboard = () => {
 
   useEffect(() => {
     fetchInstructorData();
-    const interval = setInterval(fetchActivities, 30000);
-    return () => clearInterval(interval);
   }, []);
 
   if (loading) {
@@ -274,30 +246,7 @@ const InstructorDashboard = () => {
               animate={{ x: 0, opacity: 1 }}
               transition={{ delay: 0.4 }}
             >
-              {/* Enhanced Notification Bell */}
-              <motion.div className="relative">
-                <motion.button
-                  onClick={markActivitiesAsRead}
-                  className="p-3 text-white/80 hover:text-white relative bg-white/10 rounded-2xl backdrop-blur-sm border border-white/20 transition-all duration-300"
-                  whileHover={{ scale: 1.05, y: -2 }}
-                  whileTap={{ scale: 0.95 }}
-                  title="Mark all as read"
-                >
-                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 17h5l-5 5v-5zm-4-6c0 1.1.9 2 2 2s2-.9 2-2-.9-2-2-2-2 .9-2 2z" />
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M22 6s-2-2-8-2-8 2-8 2v10s2 2 8 2 8-2 8-2V6z" />
-                  </svg>
-                  {unreadCount > 0 && (
-                    <motion.span 
-                      className="absolute -top-2 -right-2 bg-red-500 text-white text-xs rounded-full h-6 w-6 flex items-center justify-center font-bold"
-                      animate={{ scale: [1, 1.2, 1] }}
-                      transition={{ duration: 1, repeat: Infinity }}
-                    >
-                      {unreadCount > 9 ? "9+" : unreadCount}
-                    </motion.span>
-                  )}
-                </motion.button>
-              </motion.div>
+
 
               <motion.button
                 onClick={() => setShowCreateForm(true)}
@@ -373,14 +322,7 @@ const InstructorDashboard = () => {
                     <span className="text-3xl">📚</span>
                     Your Courses ({courses.length})
                   </h2>
-                  <motion.button
-                    onClick={fetchInstructorCourses}
-                    className="text-cyan-200 hover:text-white bg-white/10 rounded-xl px-4 py-2 backdrop-blur-sm border border-white/20 transition-all duration-300"
-                    whileHover={{ scale: 1.05 }}
-                    whileTap={{ scale: 0.95 }}
-                  >
-                    🔄 Refresh
-                  </motion.button>
+
                 </div>
               </div>
               
@@ -454,86 +396,11 @@ const InstructorDashboard = () => {
                   text="Manage Students"
                   gradient="from-purple-500 to-pink-600"
                 />
-                <QuickActionButton
-                  onClick={fetchInstructorData}
-                  icon="🔄"
-                  text="Refresh Data"
-                  gradient="from-yellow-500 to-orange-600"
-                />
+
               </div>
             </div>
 
-            {/* Enhanced Recent Activity */}
-            <div className="bg-gradient-to-br from-white/10 to-white/5 backdrop-blur-xl rounded-3xl border border-white/20 shadow-2xl p-6">
-              <div className="flex justify-between items-center mb-6">
-                <h3 className="text-xl font-bold text-white flex items-center gap-3">
-                  <span className="text-2xl">🔔</span>
-                  Recent Activity
-                </h3>
-                {unreadCount > 0 && (
-                  <motion.span 
-                    className="bg-red-500 text-white text-xs font-bold px-3 py-1 rounded-full"
-                    animate={{ scale: [1, 1.1, 1] }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  >
-                    {unreadCount} new
-                  </motion.span>
-                )}
-              </div>
 
-              {activities.length > 0 ? (
-                <div className="space-y-3 max-h-80 overflow-y-auto custom-scrollbar">
-                  {activities.slice(0, 10).map((activity, index) => (
-                    <motion.div
-                      key={activity._id || index}
-                      className={`p-4 rounded-2xl border-l-4 transition-all duration-300 ${
-                        activity.isRead
-                          ? "border-gray-400 bg-white/5"
-                          : "border-cyan-400 bg-cyan-400/10"
-                      }`}
-                      initial={{ opacity: 0, x: 20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      whileHover={{ scale: 1.02, x: 5 }}
-                    >
-                      <div className="flex items-start justify-between">
-                        <div className="flex-1">
-                          <p className="text-sm text-white font-medium">
-                            {activity.description}
-                          </p>
-                          <div className="flex items-center mt-2 text-xs text-gray-300">
-                            <svg className="h-3 w-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                            </svg>
-                            {formatDate(activity.createdAt)}
-                          </div>
-                        </div>
-
-                        <div className="ml-3 text-2xl">
-                          {activity.type === "student_enrolled" && "👥"}
-                          {activity.type === "course_completed" && "🏆"}
-                          {activity.type === "lecture_completed" && "📖"}
-                          {activity.type === "review_added" && "⭐"}
-                          {activity.type === "course_created" && "📚"}
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
-              ) : (
-                <motion.div 
-                  className="text-center py-8"
-                  initial={{ opacity: 0 }}
-                  animate={{ opacity: 1 }}
-                >
-                  <div className="text-6xl mb-4">🔔</div>
-                  <p className="text-gray-300 font-medium">No recent activity</p>
-                  <p className="text-sm text-gray-400 mt-2">
-                    Activity will appear here when students interact with your courses
-                  </p>
-                </motion.div>
-              )}
-            </div>
           </motion.div>
         </div>
 

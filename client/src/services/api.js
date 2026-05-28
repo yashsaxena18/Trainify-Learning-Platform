@@ -1,12 +1,20 @@
 // src/services/api.js
 import axios from 'axios';
 
+// Auto-detect: use local server in dev, Render in production
+const BASE_URL = import.meta.env.VITE_API_URL || (
+  window.location.hostname === 'localhost'
+    ? 'http://localhost:5000/api'
+    : 'https://trainify-learning-platform.onrender.com/api'
+);
+
 const API = axios.create({
-  baseURL: 'https://trainify-learning-platform.onrender.com/api',
+  baseURL: BASE_URL,
   headers: {
     'Content-Type': 'application/json',
   },
   withCredentials: true,
+  timeout: 15000, // 15s timeout to fail fast instead of hanging
 });
 
 // Request interceptor to add token

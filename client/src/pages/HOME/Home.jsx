@@ -99,19 +99,11 @@ const Home = () => {
                 transition={{ duration: 0.5, delay: 0.4 }}
               >
                 Learn Skills That{" "}
-                <motion.span
+                <span
                   className="text-yellow-400 drop-shadow-lg"
-                  animate={{
-                    textShadow: [
-                      "0 0 20px #facc15",
-                      "0 0 40px #facc15",
-                      "0 0 20px #facc15",
-                    ],
-                  }}
-                  transition={{ duration: 2, repeat: Infinity }}
                 >
                   Matter
-                </motion.span>
+                </span>
               </motion.h1>
 
               <motion.p
@@ -193,16 +185,11 @@ const Home = () => {
                   animate={{ scale: 1 }}
                   transition={{ duration: 0.6, delay: 0.8 }}
                 >
-                  <motion.div
+                  <div
                     className="w-20 h-20 bg-gradient-to-r from-cyan-500 to-purple-600 rounded-full mx-auto flex items-center justify-center text-4xl shadow-2xl mb-4"
-                    animate={{
-                      rotate: [0, 5, -5, 0],
-                      scale: [1, 1.05, 1],
-                    }}
-                    transition={{ duration: 4, repeat: Infinity }}
                   >
                     🎓
-                  </motion.div>
+                  </div>
                   <motion.h3
                     className="text-2xl font-bold text-white mb-2"
                     initial={{ y: 20, opacity: 0 }}
@@ -325,27 +312,17 @@ const Home = () => {
               </motion.div>
 
               {/* Floating Elements */}
-              <motion.div
+              <div
                 className="absolute -top-4 -right-4 w-8 h-8 bg-gradient-to-r from-pink-400 to-red-500 rounded-full flex items-center justify-center text-white font-bold shadow-lg"
-                animate={{
-                  y: [0, -10, 0],
-                  rotate: [0, 180, 360],
-                }}
-                transition={{ duration: 6, repeat: Infinity }}
               >
                 💡
-              </motion.div>
+              </div>
 
-              <motion.div
+              <div
                 className="absolute -bottom-4 -left-4 w-6 h-6 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full flex items-center justify-center text-white text-xs shadow-lg"
-                animate={{
-                  scale: [1, 1.2, 1],
-                  rotate: [0, -180, -360],
-                }}
-                transition={{ duration: 8, repeat: Infinity }}
               >
                 ⚡
-              </motion.div>
+              </div>
             </motion.div>
           </div>
         </div>
@@ -699,17 +676,8 @@ const ModernCourseCard = ({ course, index }) => {
         }}
       >
         <div className="relative h-56 bg-gradient-to-br from-cyan-500 via-purple-500 to-pink-500 flex items-center justify-center overflow-hidden">
-          <motion.div
+          <div
             className="absolute inset-0 bg-gradient-to-br from-cyan-600/20 to-purple-600/20"
-            animate={{
-              background: [
-                "linear-gradient(45deg, rgba(6, 182, 212, 0.2), rgba(168, 85, 247, 0.2))",
-                "linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(236, 72, 153, 0.2))",
-                "linear-gradient(225deg, rgba(236, 72, 153, 0.2), rgba(6, 182, 212, 0.2))",
-                "linear-gradient(315deg, rgba(6, 182, 212, 0.2), rgba(168, 85, 247, 0.2))",
-              ],
-            }}
-            transition={{ duration: 4, repeat: Infinity }}
           />
           <motion.span
             className="text-6xl z-10"

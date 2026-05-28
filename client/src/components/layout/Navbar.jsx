@@ -81,14 +81,7 @@ const Navbar = () => {
                   transition={{ duration: 0.6 }}
                 >
                   <BookOpen className="h-8 w-8 text-transparent bg-gradient-to-r from-cyan-500 to-purple-600 bg-clip-text" />
-                  <motion.div
-                    className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-purple-600 opacity-20 rounded-full blur-lg"
-                    animate={{ 
-                      scale: [1, 1.2, 1],
-                      opacity: [0.2, 0.4, 0.2]
-                    }}
-                    transition={{ duration: 2, repeat: Infinity }}
-                  />
+                  <div className="absolute inset-0 bg-gradient-to-r from-cyan-500 to-purple-600 opacity-20 rounded-full blur-lg" />
                 </motion.div>
                 <motion.span 
                   className="ml-3 text-2xl font-black bg-gradient-to-r from-gray-900 via-purple-800 to-indigo-900 bg-clip-text text-transparent"
@@ -181,11 +174,7 @@ const Navbar = () => {
                             {user?.name?.charAt(0).toUpperCase() || 'U'}
                           </span>
                         </motion.div>
-                        <motion.div
-                          className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white"
-                          animate={{ scale: [1, 1.2, 1] }}
-                          transition={{ duration: 2, repeat: Infinity }}
-                        />
+                        <div className="absolute -bottom-1 -right-1 w-4 h-4 bg-green-500 rounded-full border-2 border-white" />
                       </div>
                       
                       <div className="hidden lg:block text-left">
