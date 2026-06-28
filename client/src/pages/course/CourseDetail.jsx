@@ -4,6 +4,7 @@ import { useParams } from 'react-router-dom';
 import { trackCoursePageView } from '../../services/api';
 import API from '../../services/api';
 import { loadStripe } from '@stripe/stripe-js';
+import LoadingScreen from '../../components/ui/LoadingScreen';
 
 const stripePromise = loadStripe(import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY);
 
@@ -51,7 +52,7 @@ const CourseDetail = () => {
     }
   };
 
-  if (loading) return <div>Loading course...</div>;
+  if (loading) return <LoadingScreen message="Loading course..." />;
 
   return (
     <div className="course-detail">

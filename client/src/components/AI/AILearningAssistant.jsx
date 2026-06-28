@@ -1,5 +1,6 @@
 // src/components/AI/AILearningAssistant.jsx
 import React, { useState, useCallback, lazy, Suspense } from 'react';
+import LoadingScreen from '../ui/LoadingScreen';
 
 const ChatbotTutor = lazy(() => import('./ChatbotTutor'));
 const DoubtSolver = lazy(() => import('./DoubtSolver'));
@@ -41,16 +42,7 @@ const FEATURES = [
   },
 ];
 
-const TabSkeleton = () => (
-  <div className="flex-1 flex items-center justify-center min-h-[60vh]">
-    <div className="flex flex-col items-center gap-4">
-      <div className="relative w-10 h-10">
-        <div className="absolute inset-0 rounded-full border-2 border-[#7c5cfc]/20 border-t-[#7c5cfc] animate-spin" />
-      </div>
-      <p className="text-[13px] text-white/20 tracking-widest uppercase font-mono">Loading</p>
-    </div>
-  </div>
-);
+const TabSkeleton = () => <LoadingScreen inline message="Loading" />;
 
 const AILearningAssistant = ({ userId }) => {
   const [activeFeature, setActiveFeature] = useState('chatbot');

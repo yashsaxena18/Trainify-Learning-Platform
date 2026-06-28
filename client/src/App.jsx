@@ -5,6 +5,7 @@ import { Toaster } from "react-hot-toast";
 import { useAuth } from "./context/AuthContext";
 import ProtectedRoute from "./components/auth/ProtectedRoute";
 import Navbar from "./components/layout/Navbar";
+import LoadingScreen from "./components/ui/LoadingScreen";
 
 // Lazy Loaded Components
 const Login = React.lazy(() => import("./components/auth/Login"));
@@ -17,33 +18,11 @@ const CoursePlayer = React.lazy(() => import("./pages/course/CoursePlayer"));
 const InstructorCourseManager = React.lazy(() => import("./pages/instructor/InstructorCourseManager"));
 const AILearningAssistant = React.lazy(() => import("./components/AI/AILearningAssistant"));
 
-// Skeleton Loading Component (better UX than spinner)
-const LoadingSkeletonPage = () => (
-  <div className="min-h-screen bg-gray-900 animate-pulse">
-    {/* Skeleton Navbar */}
-    <div className="h-16 bg-gray-800/50 border-b border-gray-700/30" />
-    {/* Skeleton Header */}
-    <div className="max-w-7xl mx-auto px-4 pt-8 pb-4">
-      <div className="h-10 bg-gray-800/40 rounded-xl w-64 mb-3" />
-      <div className="h-5 bg-gray-800/30 rounded-lg w-96" />
-    </div>
-    {/* Skeleton Cards */}
-    <div className="max-w-7xl mx-auto px-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mt-6">
-      {[...Array(4)].map((_, i) => (
-        <div key={i} className="h-32 bg-gray-800/30 rounded-2xl border border-gray-700/20" />
-      ))}
-    </div>
-    <div className="max-w-7xl mx-auto px-4 mt-6">
-      <div className="h-64 bg-gray-800/20 rounded-2xl border border-gray-700/20" />
-    </div>
-  </div>
-);
-
 function App() {
   const { isAuthenticated, loading, user } = useAuth();
 
   if (loading) {
-    return <LoadingSkeletonPage />;
+    return <LoadingScreen message="Loading..." />;
   }
 
   return (
@@ -69,7 +48,7 @@ function App() {
       {/* Only show Navbar on authenticated routes */}
       <Navbar />
 
-      <Suspense fallback={<LoadingSkeletonPage />}>
+      <Suspense fallback={<LoadingScreen skeleton />}>
         <Routes>
           {/* HOME ROUTE - Should be accessible to everyone */}
           <Route path="/" element={<Home />} />

@@ -3,6 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../../services/api";
 import { toast } from "react-hot-toast";
+import LoadingScreen from "../../components/ui/LoadingScreen";
 
 /* ---------- Small helpers ---------- */
 const StatCard = ({ icon, label, value, color }) => (
@@ -112,15 +113,7 @@ const InstructorCourseManager = () => {
 
   /* ---------- UI states ---------- */
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-        <div className="relative">
-          <div className="animate-spin h-32 w-32 border-4 border-transparent border-t-cyan-400 border-r-purple-400 rounded-full shadow-2xl"></div>
-          <div className="absolute inset-0 animate-ping h-32 w-32 border-4 border-cyan-400/20 rounded-full"></div>
-          <div className="absolute inset-4 animate-pulse bg-gradient-to-r from-cyan-400 to-purple-400 rounded-full blur-md opacity-50"></div>
-        </div>
-      </div>
-    );
+    return <LoadingScreen message="Loading course..." />;
   }
 
   if (error || !course) {

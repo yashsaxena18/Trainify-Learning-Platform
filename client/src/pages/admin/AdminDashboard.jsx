@@ -2,6 +2,7 @@ import React, { useState, useEffect } from "react";
 import { useAuth } from "../../context/AuthContext";
 import API from "../../services/api";
 import { toast } from "react-hot-toast";
+import LoadingScreen from "../../components/ui/LoadingScreen";
 
 const AdminDashboard = () => {
   const { user } = useAuth();
@@ -154,25 +155,7 @@ const AdminDashboard = () => {
   };
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900">
-        <div className="text-center">
-          <div className="relative">
-            <div className="w-20 h-20 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin mx-auto"></div>
-            <div
-              className="absolute inset-0 w-16 h-16 border-4 border-transparent border-t-pink-400 rounded-full animate-spin mx-auto my-2"
-              style={{
-                animationDirection: "reverse",
-                animationDuration: "0.8s",
-              }}
-            ></div>
-          </div>
-          <p className="text-white/70 mt-4 animate-pulse">
-            Loading dashboard...
-          </p>
-        </div>
-      </div>
-    );
+    return <LoadingScreen skeleton />;
   }
 
   return (

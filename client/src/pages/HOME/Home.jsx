@@ -525,19 +525,7 @@ const Home = () => {
                 Empowering the next generation of innovators with cutting-edge
                 skills and transformative learning experiences.
               </p>
-              <div className="flex space-x-4">
-                {["📘", "🐦", "💼", "📷"].map((icon, index) => (
-                  <motion.a
-                    key={index}
-                    href="#"
-                    className="w-12 h-12 bg-gradient-to-r from-cyan-500 to-purple-500 rounded-full flex items-center justify-center text-white text-xl hover:shadow-lg"
-                    whileHover={{ scale: 1.1, rotate: 360 }}
-                    transition={{ duration: 0.3 }}
-                  >
-                    {icon}
-                  </motion.a>
-                ))}
-              </div>
+
             </motion.div>
 
             {[
@@ -553,10 +541,7 @@ const Home = () => {
                 title: "Company",
                 links: ["About Us", "Careers", "Blog", "Contact"],
               },
-              {
-                title: "Support",
-                links: ["Help Center", "Privacy Policy"],
-              },
+
             ].map((section, sectionIndex) => (
               <motion.div
                 key={section.title}
@@ -592,7 +577,7 @@ const Home = () => {
             viewport={{ once: true }}
           >
             <p className="text-gray-400">
-              &copy; 2025 Trainify. All rights reserved. Made By Yash Saxena
+              &copy; 2026 Trainify. All rights reserved.
             </p>
           </motion.div>
         </div>

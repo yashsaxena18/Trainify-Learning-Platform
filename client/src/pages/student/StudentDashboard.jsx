@@ -5,6 +5,7 @@ import API from "../../services/api";
 import { toast } from "react-hot-toast";
 import { useNavigate, useLocation } from "react-router-dom";
 import { motion, AnimatePresence } from "framer-motion";
+import LoadingScreen from "../../components/ui/LoadingScreen";
 
 // LAZY LOADED - These only download when user navigates to their respective tabs
 const CertificatesSection = React.lazy(() => import("../../components/certificates/CertificatesSection"));
@@ -13,15 +14,8 @@ const ChatbotTutor = React.lazy(() => import("../../components/AI/ChatbotTutor")
 const DoubtSolver = React.lazy(() => import("../../components/AI/DoubtSolver"));
 const QuizMaker = React.lazy(() => import("../../components/AI/QuizMaker"));
 
-// Lightweight fallback for lazy components
-const TabLoading = () => (
-  <div className="flex items-center justify-center py-16">
-    <div className="text-center">
-      <div className="w-10 h-10 border-3 border-cyan-400 border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-      <p className="text-gray-400 text-sm">Loading...</p>
-    </div>
-  </div>
-);
+// Lightweight fallback for lazy components - uses unified LoadingScreen
+const TabLoading = () => <LoadingScreen inline message="Loading..." />;
 
 const StudentDashboard = () => {
   const { user } = useAuth();
@@ -329,18 +323,7 @@ const StudentDashboard = () => {
   });
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
-        <motion.div
-          className="relative"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-        >
-          <div className="w-32 h-32 border-4 border-transparent border-t-cyan-400 border-r-purple-400 rounded-full shadow-2xl"></div>
-          <div className="absolute inset-4 border-4 border-transparent border-b-pink-400 border-l-yellow-400 rounded-full"></div>
-        </motion.div>
-      </div>
-    );
+    return <LoadingScreen skeleton />;
   }
 
   return (

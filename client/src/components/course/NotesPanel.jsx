@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import API from '../../services/api';
 import { toast } from 'react-hot-toast';
+import LoadingScreen from '../ui/LoadingScreen';
 
 const NotesPanel = ({ courseId, isOpen, onToggle, onNotesChange }) => {
   const [currentNote, setCurrentNote] = useState('');
@@ -449,12 +450,7 @@ const NotesPanel = ({ courseId, isOpen, onToggle, onNotesChange }) => {
           {/* Content Area */}
           <div className="flex-1 flex flex-col overflow-hidden">
             {loading ? (
-              <div className="flex items-center justify-center h-full">
-                <div className="text-center">
-                  <div className="w-12 h-12 border-4 border-purple-200 border-t-purple-500 rounded-full animate-spin mx-auto mb-4"></div>
-                  <p className="text-white/70">Loading your notes...</p>
-                </div>
-              </div>
+              <LoadingScreen inline message="Loading your notes..." />
             ) : (
               <>
                 {/* Current Note Input */}

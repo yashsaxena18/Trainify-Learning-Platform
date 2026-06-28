@@ -1,6 +1,7 @@
 // src/pages/course/CourseAnalytics.jsx
 import React, { useState, useEffect } from 'react';
 import API from '../services/api';
+import LoadingScreen from '../../components/ui/LoadingScreen';
 
 const CourseAnalytics = ({ courseId }) => {
   const [analytics, setAnalytics] = useState(null);
@@ -21,7 +22,7 @@ const CourseAnalytics = ({ courseId }) => {
     fetchAnalytics();
   }, [courseId]);
 
-  if (loading) return <div>Loading analytics...</div>;
+  if (loading) return <LoadingScreen inline message="Loading analytics..." />;
 
   return (
     <div className="course-analytics">

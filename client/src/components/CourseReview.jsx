@@ -2,6 +2,7 @@
 import React, { useState, useEffect } from 'react';
 import API from '../services/api';
 import { toast } from 'react-hot-toast';
+import LoadingScreen from './ui/LoadingScreen';
 
 const CourseReview = ({ courseId, onReviewAdded }) => {
   const [showReviewForm, setShowReviewForm] = useState(false);
@@ -119,11 +120,7 @@ const CourseReview = ({ courseId, onReviewAdded }) => {
   };
 
   if (loading) {
-    return (
-      <div className="text-center py-4">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-indigo-500 mx-auto"></div>
-      </div>
-    );
+    return <LoadingScreen inline message="Loading reviews..." />;
   }
 
   return (

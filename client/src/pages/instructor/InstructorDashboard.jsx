@@ -5,6 +5,7 @@ import { useAuth } from "../../context/AuthContext";
 import API from "../../services/api";
 import { toast } from "react-hot-toast";
 import { motion, AnimatePresence } from "framer-motion";
+import LoadingScreen from "../../components/ui/LoadingScreen";
 
 const InstructorDashboard = () => {
   const { user } = useAuth();
@@ -189,18 +190,7 @@ const InstructorDashboard = () => {
   }, []);
 
   if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-indigo-900 via-purple-900 to-pink-900">
-        <motion.div
-          className="relative"
-          animate={{ rotate: 360 }}
-          transition={{ duration: 2, repeat: Infinity, ease: "linear" }}
-        >
-          <div className="w-32 h-32 border-4 border-transparent border-t-cyan-400 border-r-purple-400 rounded-full shadow-2xl"></div>
-          <div className="absolute inset-4 border-4 border-transparent border-b-pink-400 border-l-yellow-400 rounded-full"></div>
-        </motion.div>
-      </div>
-    );
+    return <LoadingScreen skeleton />;
   }
 
   return (
