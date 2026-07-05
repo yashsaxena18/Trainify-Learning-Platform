@@ -31,7 +31,8 @@ const app = express();
 // -------------------- CORS Setup --------------------
 const allowedOrigins = [
   'http://localhost:5173',
-  'https://trainify-learning-platform.vercel.app'
+  'https://trainify-learning-platform.vercel.app',
+  'https://trainify-platform.vercel.app'
 ];
 
 app.use(cors({
