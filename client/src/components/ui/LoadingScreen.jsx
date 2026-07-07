@@ -92,16 +92,16 @@ const LoadingScreen = ({ message = "Loading...", inline = false, skeleton = fals
     );
   }
 
-  // Default — full-page centered spinner
+  // Default — Full-page centered spinner matching index.html preloader
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900/80 to-indigo-900">
-      <div className="text-center">
-        <div className="relative w-14 h-14 mx-auto mb-4">
-          <div className="absolute inset-0 border-[3px] border-white/10 rounded-full" />
-          <div className="absolute inset-0 border-[3px] border-transparent border-t-cyan-400 rounded-full animate-spin" />
-        </div>
-        <p className="text-white/50 text-sm font-medium tracking-wide">{message}</p>
+    <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-slate-900 via-purple-900/80 to-indigo-900 font-sans">
+      <div className="w-[60px] h-[60px] rounded-full border-4 border-white/10 border-t-cyan-500 border-r-purple-500 animate-spin mb-5" />
+      <div className="text-2xl font-extrabold bg-gradient-to-r from-cyan-500 via-purple-500 to-pink-500 text-transparent bg-clip-text tracking-wide">
+        Trainify
       </div>
+      {message !== "Loading..." && (
+        <p className="text-white/50 text-sm font-medium mt-3 tracking-wide">{message}</p>
+      )}
     </div>
   );
 };

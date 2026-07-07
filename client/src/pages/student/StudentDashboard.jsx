@@ -17,25 +17,29 @@ const QuizMaker = React.lazy(() => import("../../components/AI/QuizMaker"));
 // Lightweight fallback for lazy components - uses unified LoadingScreen
 const TabLoading = () => <LoadingScreen inline message="Loading..." />;
 
+// Global cache to prevent skeleton flashes when navigating back to dashboard
+let dashboardCache = null;
+
 const StudentDashboard = () => {
   const { user } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
-  const [loading, setLoading] = useState(true);
+  // Start with loading = true ONLY if we don't have cached data
+  const [loading, setLoading] = useState(!dashboardCache);
   const [activeTab, setActiveTab] = useState("overview");
 
   // AI ASSISTANT STATE
   const [showAIAssistant, setShowAIAssistant] = useState(false);
   const [activeAIFeature, setActiveAIFeature] = useState("chatbot");
 
-  // State management
-  const [enrolledCourses, setEnrolledCourses] = useState([]);
-  const [availableCourses, setAvailableCourses] = useState([]);
-  const [userProgress, setUserProgress] = useState({});
+  // State management (initialize from cache or context if available)
+  const [enrolledCourses, setEnrolledCourses] = useState(dashboardCache?.enrolledCourses || user?.enrolledCourses || []);
+  const [availableCourses, setAvailableCourses] = useState(dashboardCache?.availableCourses || []);
+  const [userProgress, setUserProgress] = useState(dashboardCache?.userProgress || {});
   const [searchTerm, setSearchTerm] = useState("");
-  const [certificateStatus, setCertificateStatus] = useState({});
-  const [courseProgress, setCourseProgress] = useState([]);
-  const [completionStats, setCompletionStats] = useState({
+  const [certificateStatus, setCertificateStatus] = useState(dashboardCache?.certificateStatus || {});
+  const [courseProgress, setCourseProgress] = useState(dashboardCache?.courseProgress || []);
+  const [completionStats, setCompletionStats] = useState(dashboardCache?.completionStats || {
     totalEnrolled: 0,
     totalCompleted: 0,
     completionRate: "0%",
@@ -82,6 +86,14 @@ const StudentDashboard = () => {
 
   useEffect(() => {
     fetchStudentData();
+    // Fetch available courses in the background without blocking the UI
+    if (!dashboardCache?.availableCourses?.length) {
+      API.get("/courses").then(res => {
+        const courses = res.data.courses || res.data || [];
+        setAvailableCourses(courses);
+        if (dashboardCache) dashboardCache.availableCourses = courses;
+      }).catch(console.error);
+    }
   }, []);
 
   useEffect(() => {
@@ -107,43 +119,58 @@ const StudentDashboard = () => {
 
   const fetchStudentData = async () => {
     try {
-      setLoading(true);
-      const [userResponse, coursesResponse, progressResponse] = await Promise.all([
-        API.get("/users/me"),
-        API.get("/courses"),
+      // Only show skeleton if we have NO data to show immediately
+      const needsInitialLoad = !dashboardCache && (!user?.enrolledCourses || user.enrolledCourses.length === 0);
+      if (needsInitialLoad) {
+        setLoading(true);
+      }
+      
+      // We removed the redundant /users/me and the slow /courses from this blocking chain
+      const [progressResponse] = await Promise.all([
         API.get("/progress/").catch(() => ({ data: { success: false } }))
       ]);
 
-      const userData = userResponse.data.user || userResponse.data;
-      const coursesData = coursesResponse.data.courses || coursesResponse.data || [];
+      const newEnrolledCourses = user?.enrolledCourses || [];
+      if (!dashboardCache) setEnrolledCourses(newEnrolledCourses);
 
-      setEnrolledCourses(userData.enrolledCourses || []);
-      setAvailableCourses(coursesData);
+      let newCourseProgress = dashboardCache?.courseProgress || [];
+      let newCompletionStats = dashboardCache?.completionStats || { totalEnrolled: 0, totalCompleted: 0, completionRate: "0%" };
+      let newProgressMap = dashboardCache?.userProgress || {};
 
       if (progressResponse.data && progressResponse.data.success) {
-        const progressData = progressResponse.data.data.courseProgress || [];
-        setCourseProgress(progressData);
+        newCourseProgress = progressResponse.data.data.courseProgress || [];
+        setCourseProgress(newCourseProgress);
         
-        const statsData = {
+        newCompletionStats = {
           totalEnrolled: progressResponse.data.data.totalEnrolledCourses || 0,
           totalCompleted: progressResponse.data.data.totalCompletedCourses || 0,
           completionRate: progressResponse.data.data.overallCompletionRate || "0%",
         };
-        setCompletionStats(statsData);
+        setCompletionStats(newCompletionStats);
 
-        const progressMap = {};
-        progressData.forEach(p => {
-          progressMap[p.courseId || p.course] = p;
+        newProgressMap = {};
+        newCourseProgress.forEach(p => {
+          newProgressMap[p.courseId || p.course] = p;
         });
-        setUserProgress(progressMap);
+        setUserProgress(newProgressMap);
       }
 
-      // Turn off loading before checking certificates to improve perceived performance
+      // Turn off loading 
       setLoading(false);
 
-      if (userData.enrolledCourses && userData.enrolledCourses.length > 0) {
+      // Update the global cache
+      dashboardCache = {
+        enrolledCourses: newEnrolledCourses,
+        availableCourses: availableCourses,
+        courseProgress: newCourseProgress,
+        completionStats: newCompletionStats,
+        userProgress: newProgressMap,
+        certificateStatus: certificateStatus 
+      };
+
+      if (newEnrolledCourses.length > 0) {
         // Fetch certificates in background (non-blocking)
-        checkCertificateStatus(userData.enrolledCourses);
+        checkCertificateStatus(newEnrolledCourses);
       }
     } catch (error) {
       console.error("Failed to fetch student data:", error);

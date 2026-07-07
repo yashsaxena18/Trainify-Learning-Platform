@@ -1,5 +1,5 @@
 // src/pages/course/CoursePlayer.jsx - FIXED VERSION
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import API from "../../services/api";
 import { toast } from "react-hot-toast";
@@ -7,6 +7,7 @@ import VideoPlayer from "../../components/course/VideoPlayer";
 import { motion, AnimatePresence } from "framer-motion";
 import NotesPanel from "../../components/course/NotesPanel";
 import LoadingScreen from "../../components/ui/LoadingScreen";
+import YouTube from "react-youtube";
 
 // Helper function to extract YouTube ID
 const getYouTubeId = (url) => {
@@ -31,10 +32,14 @@ const CoursePlayer = () => {
   const [loading, setLoading] = useState(true);
   const [showSidebar, setShowSidebar] = useState(false);
 
-  // Course completion state
   const [showCongratulations, setShowCongratulations] = useState(false);
   const [justCompleted, setJustCompleted] = useState(false);
   const [showCertificateButton, setShowCertificateButton] = useState(false);
+  
+  // Video tracking state
+  const [watchedPercentage, setWatchedPercentage] = useState(0);
+  const [player, setPlayer] = useState(null);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   // View tracking state
   const [hasTrackedView, setHasTrackedView] = useState(false);
@@ -85,6 +90,8 @@ const CoursePlayer = () => {
   // Track lecture view when lecture changes
   useEffect(() => {
     const currentLectureId = lectures[currentLecture]?._id;
+    setWatchedPercentage(0); // Reset watch progress for new lecture
+    setIsPlaying(false);
 
     if (currentLectureId && !lectureViewTracked.has(currentLectureId)) {
       const timer = setTimeout(() => {
@@ -103,6 +110,44 @@ const CoursePlayer = () => {
       trackLectureView(courseId, currentLectureId);
     }
   };
+
+  // Ref to hold latest state without triggering effect re-runs
+  const latestRef = useRef({ progress, currentLecture, lectures, watchedPercentage });
+  useEffect(() => {
+    latestRef.current = { progress, currentLecture, lectures, watchedPercentage };
+  }, [progress, currentLecture, lectures, watchedPercentage]);
+
+  // YouTube Progress Polling
+  useEffect(() => {
+    let interval;
+    if (isPlaying && player) {
+      interval = setInterval(async () => {
+        try {
+          const currentTime = await player.getCurrentTime();
+          const duration = await player.getDuration();
+          if (duration > 0) {
+            const played = currentTime / duration;
+            const { watchedPercentage, progress, currentLecture, lectures } = latestRef.current;
+            const currentLectureId = lectures[currentLecture]?._id;
+            
+            if (played > watchedPercentage) {
+              setWatchedPercentage(played);
+            }
+            
+            // Auto-complete at 90%
+            if (played >= 0.90 && !progress.completedLectureIds?.includes(currentLectureId)) {
+              if (watchedPercentage < 0.90) { // Prevent multiple calls
+                markLectureComplete(currentLectureId);
+              }
+            }
+          }
+        } catch (err) {
+          console.error("Error polling YouTube progress:", err);
+        }
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isPlaying, player]);
 
   const handleVideoTimeUpdate = (event) => {
     const currentTime = event.target.currentTime;
@@ -876,24 +921,42 @@ const CoursePlayer = () => {
               className="bg-gradient-to-br from-white/10 to-white/5 rounded-2xl sm:rounded-3xl overflow-hidden backdrop-blur-xl border border-white/20 shadow-2xl"
 
             >
-              <div className="aspect-video w-full relative">
+              <div className="aspect-video w-full relative bg-black rounded-t-2xl sm:rounded-t-3xl overflow-hidden">
                 {getYouTubeId(lectures[currentLecture].videoUrl) ? (
-                  <iframe
-                    src={`https://www.youtube.com/embed/${getYouTubeId(
-                      lectures[currentLecture].videoUrl
-                    )}?enablejsapi=1&origin=${window.location.origin}`}
-                    className="w-full h-full rounded-t-2xl sm:rounded-t-3xl"
-                    frameBorder="0"
-                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                    allowFullScreen
-                    title={lectures[currentLecture].title}
-                    onLoad={handleVideoPlay}
+                  <YouTube
+                    videoId={getYouTubeId(lectures[currentLecture].videoUrl)}
+                    opts={{
+                      width: '100%',
+                      height: '100%',
+                      playerVars: {
+                        autoplay: 1,
+                        origin: window.location.origin,
+                        enablejsapi: 1,
+                        rel: 0,
+                        modestbranding: 1
+                      }
+                    }}
+                    className="absolute top-0 left-0 w-full h-full"
+                    onReady={(e) => setPlayer(e.target)}
+                    onStateChange={(e) => {
+                      if (e.data === 1) { // 1 is playing
+                        setIsPlaying(true);
+                        handleVideoPlay();
+                      } else {
+                        setIsPlaying(false);
+                      }
+                      
+                      if (e.data === 0) { // 0 is ended
+                        if (!progress.completedLectureIds?.includes(lectures[currentLecture]._id)) {
+                          markLectureComplete(lectures[currentLecture]._id);
+                        }
+                      }
+                    }}
                   />
                 ) : (
                   <div className="w-full h-full flex items-center justify-center bg-gradient-to-br from-gray-800 to-gray-900 rounded-t-2xl sm:rounded-t-3xl">
                     <div className="text-center p-4">
-                      <div
-                      >
+                      <div>
                         <svg
                           className="mx-auto h-12 w-12 sm:h-16 sm:w-16 text-gray-400 mb-4"
                           fill="none"
@@ -958,8 +1021,8 @@ const CoursePlayer = () => {
 
             <motion.button
               onClick={() => markLectureComplete(lectures[currentLecture]._id)}
-              className="flex-1 sm:flex-none bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 text-white px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-sm sm:text-base transition-all duration-300 flex items-center justify-center gap-2 shadow-lg"
-
+              disabled={watchedPercentage < 0.90 && !progress.completedLectureIds?.includes(lectures[currentLecture]._id)}
+              className="flex-1 sm:flex-none bg-gradient-to-r from-emerald-600 to-green-600 hover:from-emerald-700 hover:to-green-700 disabled:from-gray-700 disabled:to-gray-800 text-white px-4 sm:px-6 lg:px-8 py-2.5 sm:py-3 rounded-xl sm:rounded-2xl font-bold text-sm sm:text-base transition-all duration-300 disabled:opacity-50 flex items-center justify-center gap-2 shadow-lg"
             >
               <svg
                 className="w-4 h-4 sm:w-5 sm:h-5"
@@ -974,8 +1037,20 @@ const CoursePlayer = () => {
                   d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"
                 />
               </svg>
-              <span className="hidden sm:inline">Mark Complete</span>
-              <span className="sm:hidden">Complete</span>
+              <span className="hidden sm:inline">
+                {progress.completedLectureIds?.includes(lectures[currentLecture]._id) 
+                  ? "Completed ✓" 
+                  : watchedPercentage >= 0.90 
+                    ? "Mark Complete" 
+                    : `Watch to Complete (${Math.round(watchedPercentage * 100)}%)`}
+              </span>
+              <span className="sm:hidden">
+                {progress.completedLectureIds?.includes(lectures[currentLecture]._id) 
+                  ? "✓" 
+                  : watchedPercentage >= 0.90 
+                    ? "Complete" 
+                    : `${Math.round(watchedPercentage * 100)}%`}
+              </span>
             </motion.button>
 
             <motion.button

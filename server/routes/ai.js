@@ -3,6 +3,7 @@
 
 const express = require('express');
 const router  = express.Router();
+const { protect } = require('../middleware/authMiddleware');
 
 // ── Environment ────────────────────────────────────────────────────
 const GEMINI_API_KEY = process.env.GEMINI_API_KEY;
@@ -133,9 +134,10 @@ const cleanJSON = (raw) => raw.replace(/```json\n?/g, '').replace(/```\n?/g, '')
 // ══════════════════════════════════════════════════════════════════
 //  1. CHATBOT TUTOR
 // ══════════════════════════════════════════════════════════════════
-router.post('/chatbot', async (req, res) => {
+router.post('/chatbot', protect, async (req, res) => {
   try {
-    const { message, userId, context } = req.body;
+    const { message, context } = req.body;
+    const userId = req.user._id; // Use authenticated user ID
 
     if (!message?.trim()) {
       return res.status(400).json({ success: false, error: 'Message is required' });
@@ -172,9 +174,10 @@ Response:`;
 // ══════════════════════════════════════════════════════════════════
 //  2. DOUBT SOLVER
 // ══════════════════════════════════════════════════════════════════
-router.post('/doubt-solver', async (req, res) => {
+router.post('/doubt-solver', protect, async (req, res) => {
   try {
-    const { code, errorMessage, language, description, userId } = req.body;
+    const { code, errorMessage, language, description } = req.body;
+    const userId = req.user._id; // Use authenticated user ID
 
     if (!checkRateLimit(userId)) {
       return res.status(429).json({ success: false, error: 'Rate limit exceeded. Please try again later.' });
@@ -213,9 +216,10 @@ Ensure your explanation is thorough, educational, and directly addresses their s
 // ══════════════════════════════════════════════════════════════════
 const QUIZ_QUESTION_COUNT = 10;
 
-router.post('/generate-quiz', async (req, res) => {
+router.post('/generate-quiz', protect, async (req, res) => {
   try {
-    const { topic, difficulty, userId } = req.body;
+    const { topic, difficulty } = req.body;
+    const userId = req.user._id; // Use authenticated user ID
 
     if (!topic?.trim()) {
       return res.status(400).json({ success: false, error: 'Topic is required' });
@@ -298,9 +302,10 @@ Generate all ${QUIZ_QUESTION_COUNT} questions now:`;
 // ══════════════════════════════════════════════════════════════════
 //  4. QUIZ ANSWER EVALUATION
 // ══════════════════════════════════════════════════════════════════
-router.post('/evaluate-answer', async (req, res) => {
+router.post('/evaluate-answer', protect, async (req, res) => {
   try {
-    const { question, userAnswer, correctAnswer, questionType, userId } = req.body;
+    const { question, userAnswer, correctAnswer, questionType } = req.body;
+    const userId = req.user._id; // Use authenticated user ID
 
     if (!checkRateLimit(userId)) {
       return res.status(429).json({ success: false, error: 'Rate limit exceeded. Please try again later.' });

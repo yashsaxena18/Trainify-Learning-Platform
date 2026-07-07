@@ -53,7 +53,7 @@ app.use(cors({
 // -------------------- Middleware --------------------
 const compression = require('compression');
 app.use(compression()); // Compress all routes
-app.use(express.json()); // parse JSON
+app.use(express.json({ limit: '10kb' })); // parse JSON with size limit to prevent DoS
 
 // -------------------- Routes --------------------
 

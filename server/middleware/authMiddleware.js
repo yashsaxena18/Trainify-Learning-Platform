@@ -2,25 +2,27 @@
 const jwt = require("jsonwebtoken");
 const User = require("../models/User");
 
+const isDev = process.env.NODE_ENV === 'development';
+
 const protect = async (req, res, next) => {
   let token;
   
-  console.log("🔍 Incoming Headers:", req.headers);
+  if (isDev) console.log("🔍 Auth middleware triggered");
   
   if (
     req.headers.authorization &&
     req.headers.authorization.startsWith("Bearer")
   ) {
     try {
-      token = req.headers.authorization.split(" ")[1]; ///plit to get the bearer token
-      console.log("🟢 Extracted Token:", token);
+      token = req.headers.authorization.split(" ")[1]; // split to get the bearer token
+      if (isDev) console.log("🟢 Token extracted (length:", token.length, ")");
       
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      console.log("🧠 Decoded JWT:", decoded);
+      if (isDev) console.log("🧠 Decoded JWT for user:", decoded._id || decoded.id);
       
       // Check both 'id' and '_id' properties in case of inconsistency
       const userId = decoded.id || decoded._id || decoded.userId;
-      console.log("🔍 Looking for user with ID:", userId);
+      if (isDev) console.log("🔍 Looking for user with ID:", userId);
       
       if (!userId) {
         console.log("❌ No user ID found in token");
@@ -28,15 +30,20 @@ const protect = async (req, res, next) => {
       }
       
       const user = await User.findById(userId).select("-password");
-      console.log("✅ Database query result:", user);
+      if (isDev) console.log("✅ User found:", user?._id);
       
       if (!user) {
         console.log("❌ User not found in database with ID:", userId);
         return res.status(401).json({ message: "Unauthorized - User not found in DB" });
       }
+
+      // 🔒 Reject blocked users even if their JWT is still valid
+      if (user.isBlocked) {
+        return res.status(403).json({ message: "Your account has been blocked. Contact support." });
+      }
       
       req.user = user;
-      console.log("✅ User attached to request:", req.user._id);
+      if (isDev) console.log("✅ User attached to request:", req.user._id);
       next();
       
     } catch (error) {
@@ -51,7 +58,7 @@ const protect = async (req, res, next) => {
       return res.status(401).json({ message: "Not authorized, token failed" });
     }
   } else {
-    console.log("🚫 No Bearer token in header");
+    if (isDev) console.log("🚫 No Bearer token in header");
     return res.status(401).json({ message: "Unauthorized - No token provided" });
   }
 };

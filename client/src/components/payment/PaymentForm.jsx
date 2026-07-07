@@ -83,9 +83,8 @@ const PaymentForm = ({
         setPaymentError(error.message);
         toast.error(`Payment failed: ${error.message}`);
       } else if (paymentIntent && paymentIntent.status === 'succeeded') {
-        // Step 3: Enroll student
+        // Step 3: Enroll student (success toast is shown by onEnrollmentComplete)
         setProcessingStep('Enrolling you in the course...');
-        toast.success('🎉 Payment successful!');
         
         try {
           if (onEnrollmentComplete) {
@@ -104,10 +103,9 @@ const PaymentForm = ({
       const errorMessage = error.response?.data?.message || error.message || 'Payment failed';
       setPaymentError(errorMessage);
       toast.error(errorMessage);
+      setLoading(false);
+      setProcessingStep('');
     }
-
-    setLoading(false);
-    setProcessingStep('');
   };
 
   // Show loading state while Stripe is loading
