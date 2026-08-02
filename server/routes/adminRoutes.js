@@ -1,16 +1,9 @@
-// routes/adminRoutes.js - CORRECTED
+// routes/adminRoutes.js 
 const express = require('express');
 const router = express.Router();
 const { protect } = require('../middleware/authMiddleware');
+const { checkAdmin } = require('../middleware/checkAdmin');
 
-// ✅ Inline checkAdmin middleware (no separate file needed)
-const checkAdmin = (req, res, next) => {
-  if (req.user && req.user.role === 'admin') {
-    next();
-  } else {
-    res.status(403).json({ message: 'Admin access required' });
-  }
-};
 
 const {
   getAllStudents,

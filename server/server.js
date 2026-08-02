@@ -62,6 +62,9 @@ app.get('/api/test', (req, res) => {
   res.json({ success: true, message: 'Backend is working' });
 });
 
+app.get("/health", (req, res) => {
+  res.send("Server is running");
+});
 // Auth
 app.use('/api/auth', authRoutes);
 
