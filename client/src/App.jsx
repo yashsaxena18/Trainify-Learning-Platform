@@ -21,9 +21,9 @@ const AILearningAssistant = React.lazy(() => import("./components/AI/AILearningA
 function App() {
   const { isAuthenticated, loading, user } = useAuth();
 
-  if (loading) {
-    return <LoadingScreen message="Loading..." />;
-  }
+  // NOTE: We no longer block the entire app on `loading`.
+  // Public routes (Home, Login, Register) render instantly.
+  // ProtectedRoute handles its own loading state for auth-gated pages.
 
   return (
     <div className="App bg-gray-900 min-h-screen">
@@ -57,7 +57,7 @@ function App() {
           <Route
             path="/login"
             element={
-              !isAuthenticated ? (
+              loading || !isAuthenticated ? (
                 <Login />
               ) : (
                 <Navigate to="/dashboard" replace />
@@ -67,7 +67,7 @@ function App() {
           <Route
             path="/register"
             element={
-              !isAuthenticated ? (
+              loading || !isAuthenticated ? (
                 <Register />
               ) : (
                 <Navigate to="/dashboard" replace />

@@ -21,7 +21,7 @@ const TabLoading = () => <LoadingScreen inline message="Loading..." />;
 let dashboardCache = null;
 
 const StudentDashboard = () => {
-  const { user } = useAuth();
+  const { user, checkAuthStatus } = useAuth();
   const navigate = useNavigate();
   const location = useLocation();
   // Start with loading = true ONLY if we don't have cached data
@@ -117,7 +117,7 @@ const StudentDashboard = () => {
     completionStats,
   ]);
 
-  const fetchStudentData = async () => {
+  const fetchStudentData = async (forceRefresh = false) => {
     try {
       // Only show skeleton if we have NO data to show immediately
       const needsInitialLoad = !dashboardCache && (!user?.enrolledCourses || user.enrolledCourses.length === 0);
@@ -125,13 +125,15 @@ const StudentDashboard = () => {
         setLoading(true);
       }
       
-      // We removed the redundant /users/me and the slow /courses from this blocking chain
-      const [progressResponse] = await Promise.all([
-        API.get("/progress/").catch(() => ({ data: { success: false } }))
+      // We removed the redundant /users/me and the slow /courses from this blocking chain normally
+      // But if forceRefresh is true (e.g. after payment), we MUST fetch fresh user data
+      const [progressResponse, userResponse] = await Promise.all([
+        API.get("/progress/").catch(() => ({ data: { success: false } })),
+        forceRefresh ? API.get("/users/me").catch(() => null) : Promise.resolve(null)
       ]);
 
-      const newEnrolledCourses = user?.enrolledCourses || [];
-      if (!dashboardCache) setEnrolledCourses(newEnrolledCourses);
+      const newEnrolledCourses = userResponse?.data?.enrolledCourses || user?.enrolledCourses || [];
+      if (!dashboardCache || forceRefresh) setEnrolledCourses(newEnrolledCourses);
 
       let newCourseProgress = dashboardCache?.courseProgress || [];
       let newCompletionStats = dashboardCache?.completionStats || { totalEnrolled: 0, totalCompleted: 0, completionRate: "0%" };
@@ -308,11 +310,13 @@ const StudentDashboard = () => {
 
       if (response.data && response.data.success) {
         if (response.data.alreadyEnrolled) {
-          toast.info("You are already enrolled in this course");
+          toast("You are already enrolled in this course", { icon: "ℹ️" });
         } else {
           toast.success(response.data.message || "Successfully enrolled!");
         }
-        await fetchStudentData();
+        dashboardCache = null; // Clear cache so new data takes precedence
+        await fetchStudentData(true);
+        checkAuthStatus(); // Update global auth context quietly
       } else {
         toast.error(response.data?.message || "Enrollment failed");
       }
@@ -321,7 +325,9 @@ const StudentDashboard = () => {
 
       if (error.response?.status === 200 && error.response?.data?.success) {
         toast.success(error.response.data.message || "Successfully enrolled!");
-        await fetchStudentData();
+        dashboardCache = null;
+        await fetchStudentData(true);
+        checkAuthStatus();
       } else {
         if (
           error.response?.status === 500 &&

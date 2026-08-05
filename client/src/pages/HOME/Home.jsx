@@ -3,7 +3,7 @@ import React, { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
 import API from "../../services/api";
-import { motion, useScroll, useTransform } from "framer-motion";
+import { motion } from "framer-motion";
 import FeaturesSection from "./FeaturesSection";
 import HowItWorks from "./Howitworks";
 
@@ -13,8 +13,6 @@ const Home = () => {
   const [featuredCourses, setFeaturedCourses] = useState([]);
 
   const [loading, setLoading] = useState(true);
-  const { scrollYProgress } = useScroll();
-  const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
 
   useEffect(() => {
     fetchHomeData();
@@ -68,35 +66,25 @@ const Home = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-900 via-purple-900 to-slate-900 overflow-hidden">
-      {/* Animated Background */}
+      {/* Animated Background — lightweight version */}
       <div className="fixed inset-0 z-0">
-        <motion.div className="absolute inset-0 opacity-30" style={{ y }}>
-          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-gradient-to-r from-cyan-400 to-blue-500 rounded-full filter blur-3xl opacity-70 animate-pulse"></div>
-          <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-gradient-to-r from-purple-400 to-pink-500 rounded-full filter blur-3xl opacity-70 animate-pulse delay-1000"></div>
-          <div className="absolute bottom-1/4 left-1/2 w-96 h-96 bg-gradient-to-r from-emerald-400 to-cyan-500 rounded-full filter blur-3xl opacity-70 animate-pulse delay-500"></div>
-        </motion.div>
+        <div className="absolute inset-0 opacity-20">
+          <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-cyan-400/30 rounded-full filter blur-3xl"></div>
+          <div className="absolute top-3/4 right-1/4 w-96 h-96 bg-purple-400/30 rounded-full filter blur-3xl"></div>
+          <div className="absolute bottom-1/4 left-1/2 w-96 h-96 bg-emerald-400/30 rounded-full filter blur-3xl"></div>
+        </div>
       </div>
 
-      {/* Hero Section */}
-      <motion.section
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ duration: 1 }}
+      {/* Hero Section — renders instantly for fast LCP */}
+      <section
         className="relative z-10 min-h-screen flex items-center justify-center"
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
             {/* Left Side - Main Content */}
-            <motion.div
-              initial={{ x: -100, opacity: 0 }}
-              animate={{ x: 0, opacity: 1 }}
-              transition={{ duration: 0.8, delay: 0.2 }}
-            >
-              <motion.h1
+            <div>
+              <h1
                 className="text-5xl md:text-7xl font-black mb-8 bg-gradient-to-r from-cyan-400 via-purple-400 to-pink-400 bg-clip-text text-transparent leading-tight"
-                initial={{ scale: 0.9 }}
-                animate={{ scale: 1 }}
-                transition={{ duration: 0.5, delay: 0.4 }}
               >
                 Learn Skills That{" "}
                 <span
@@ -104,13 +92,13 @@ const Home = () => {
                 >
                   Matter
                 </span>
-              </motion.h1>
+              </h1>
 
               <motion.p
                 className="text-xl md:text-2xl mb-10 text-gray-300 font-medium leading-relaxed"
                 initial={{ y: 20, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.6 }}
+                transition={{ duration: 0.6, delay: 0.2 }}
               >
                 Master cutting-edge technologies with{" "}
                 <span className="text-cyan-400 font-bold">AI-powered</span>{" "}
@@ -125,7 +113,7 @@ const Home = () => {
                 className="flex flex-col sm:flex-row gap-6"
                 initial={{ y: 40, opacity: 0 }}
                 animate={{ y: 0, opacity: 1 }}
-                transition={{ duration: 0.8, delay: 0.8 }}
+                transition={{ duration: 0.8, delay: 0.3 }}
               >
                 <motion.button
                   onClick={handleGetStarted}
@@ -161,7 +149,7 @@ const Home = () => {
                   </span>
                 </motion.button>
               </motion.div>
-            </motion.div>
+            </div>
 
             {/* Right Side - No Data Interface with Learning Journey */}
             <motion.div
@@ -326,7 +314,7 @@ const Home = () => {
             </motion.div>
           </div>
         </div>
-      </motion.section>
+      </section>
 
       {/* How It Works Section */}
       <HowItWorks />
