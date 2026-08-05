@@ -8,7 +8,7 @@ class AIService {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
-          'Authorization': `Bearer ${localStorage.getItem('authToken')}` // If you have auth
+          'Authorization': `Bearer ${localStorage.getItem('trainify_token')}`
         },
         credentials: 'include',
         body: JSON.stringify(data) // ✅ FIXED: was missing — data was never sent to server!
